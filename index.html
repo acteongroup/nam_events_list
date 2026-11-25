@@ -175,6 +175,10 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 #detOv .modal.detail{max-width:500px;min-height:100%;border-radius:18px 0 0 18px;padding:18px 24px 28px;overflow:auto;animation:slidein .22s ease-out}
 @keyframes slidein{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
 @keyframes slideup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+#detOv.noanim .modal.detail,#formOv.noanim .modal{animation:none}
+#formOv{background:rgba(14,42,58,.3);justify-content:flex-end;align-items:stretch;padding:0}
+#formOv .modal{max-width:500px;border-radius:18px 0 0 18px;padding:20px 24px 0;overflow:auto;animation:slidein .22s ease-out}
+#form .actions{position:sticky;bottom:0;background:#fff;margin:18px -24px 0;padding:12px 24px 16px;border-top:1px solid var(--line);z-index:2}
 .dhead{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
 .dnav{display:flex;align-items:center;gap:6px}
 .dnav button,.dx{border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;font-size:18px;line-height:1;cursor:pointer;color:var(--navy)}
@@ -202,7 +206,9 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
   .modal{padding:20px 16px}
   .prodrow{grid-template-columns:1fr 70px 36px}
   .dnav button,.dx{width:40px;height:40px}
-  #detOv{align-items:flex-end;justify-content:center}
+  #detOv,#formOv{align-items:flex-end;justify-content:center}
+  #formOv .modal{max-width:none;max-height:92vh;border-radius:18px 18px 0 0;padding:16px 18px 0;animation:slideup .22s ease-out}
+  #form .actions{margin:18px -18px 0;padding:12px 18px 16px}
   #detOv .modal.detail{max-width:none;min-height:0;max-height:88vh;border-radius:18px 18px 0 0;padding:14px 18px 24px;animation:slideup .22s ease-out}
 }
 </style>
@@ -638,7 +644,7 @@ function calendarHTML(){
 /* ============ Detail modal ============ */
 let detNav = { ids:[], i:-1 };
 function navDetail(d){ const j=detNav.i+d; if(j>=0 && j<detNav.ids.length) openDetail(detNav.ids[j]); }
-function openDetail(id){
+function openDetail(id,quiet){
   const e=events.find(x=>x.id===id); if(!e) return;
   const c=e.contact, mail = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(c.email||'');
   const ids=(st.view==='calendar' ? filtered(true) : filtered()).map(x=>x.id); detNav={ ids, i:ids.indexOf(id) };
@@ -662,7 +668,7 @@ function openDetail(id){
       <button class="btn ghost" data-act="edit" data-id="${esc(id)}">Edit</button>`:''}
       <button class="btn" data-act="close">Close</button>
     </div>`;
-  $('detOv').classList.add('open'); notifyHeight();
+  $('detOv').classList.toggle('noanim',!!quiet); $('detOv').classList.add('open'); notifyHeight();
 }
 
 /* ============ Form ============ */
@@ -677,7 +683,7 @@ function openForm(id){
   formReps=[...(e?.reps||[])]; renderRepChips(); $('err').textContent='';
   formProds=(e?.products||[]).map(p=>({name:p.name||'',qty:p.qty||''})); if(!formProds.length) formProds.push({name:'',qty:''}); renderProdRows();
   $('repList').innerHTML=[...new Set(events.flatMap(x=>x.reps))].sort().map(r=>`<option value="${esc(r)}">`).join('');
-  $('detOv').classList.remove('open'); $('formOv').classList.add('open'); $('fName').focus();
+  $('formOv').classList.toggle('noanim',$('detOv').classList.contains('open')); $('detOv').classList.remove('open'); $('formOv').classList.add('open'); $('fName').focus();
 }
 function renderFileList(){
   $('fileList').innerHTML=formFiles.map((f,i)=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="sz">${fmtSize(f.size)}</span><button type="button" class="rm" data-rmf="${i}" aria-label="Remove ${esc(f.name)}">×</button></div>`).join('');
@@ -731,12 +737,12 @@ $('form').addEventListener('submit',async ev=>{
   else if(rec.contact.email && !/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(rec.contact.email)) msg='Enter a valid contact email.';
   if(msg){ $('err').textContent=msg; return; }
   const btn=$('form').querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='Saving…';
-  try{ await backend.save(rec,!!editingId); closeAll(); }
+  try{ const wasId=editingId; await backend.save(rec,!!editingId); closeAll(); if(wasId) openDetail(wasId,true); }
   catch(err){ $('err').textContent=(err&&err.message)||'Could not save. Please try again.'; }
   finally{ btn.disabled=false; btn.textContent='Save event'; }
 });
 function closeAll(){ ['formOv','detOv','impOv','admOv'].forEach(i=>$(i).classList.remove('open')); notifyHeight(); }
-$('cancel').onclick=closeAll;
+$('cancel').onclick=()=>{ const id=editingId; closeAll(); if(id) openDetail(id,true); };
 ['formOv','detOv','impOv','admOv'].forEach(id=>$(id).addEventListener('mousedown',e=>{ if(e.target.id===id) closeAll(); }));
 document.addEventListener('keydown',e=>{ if($('detOv').classList.contains('open') && !e.target.matches('input,textarea,select') && (e.key==='ArrowRight'||e.key==='ArrowLeft')) navDetail(e.key==='ArrowRight'?1:-1); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeAll(); closePops(); } if((e.key==='Enter')&&e.target.matches('[data-id][tabindex]')) openDetail(e.target.dataset.id); });
