@@ -264,7 +264,7 @@ let backend = Local;
 async function bootFirebase(cfg){
   const B = 'https://www.gstatic.com/firebasejs/10.12.2/';
   const { initializeApp } = await import(B+'firebase-app.js');
-  const { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, writeBatch } = await import(B+'firebase-firestore.js');
+  const { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, getDocFromServer, writeBatch } = await import(B+'firebase-firestore.js');
   const app = initializeApp({ apiKey:cfg.apiKey, authDomain:cfg.authDomain, projectId:cfg.projectId, storageBucket:cfg.storageBucket, messagingSenderId:cfg.messagingSenderId, appId:cfg.appId });
   const db = getFirestore(app);
   let user=null, canEditNow=false, A=null, S=null, auth=null, storage=null;
@@ -273,7 +273,7 @@ async function bootFirebase(cfg){
     auth = A.getAuth(app); storage = S.getStorage(app);
     A.onAuthStateChanged(auth, async u=>{
       user=u; canEditNow=false;
-      if(u){ try{ canEditNow = (await getDoc(doc(db,'unlock',u.uid))).exists(); }catch(e){} }
+      if(u){ try{ canEditNow = (await getDocFromServer(doc(db,'unlock',u.uid))).exists(); }catch(e){} }
       updateAuthUI();
     });
   }
@@ -284,7 +284,7 @@ async function bootFirebase(cfg){
     async unlock(pw){
       if(!auth.currentUser) await A.signInAnonymously(auth);
       try{ await setDoc(doc(db,'unlock',auth.currentUser.uid),{pw}); }
-      catch(e){ throw new Error('Incorrect password, or no connection. Please try again.'); }
+      catch(e){ canEditNow = false; updateAuthUI(); throw new Error('Incorrect password, or no connection. Please try again.'); }
       canEditNow = true; updateAuthUI();
     },
     async lock(){
