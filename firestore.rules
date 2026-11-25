@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The shared admin password. Change CHANGE_ME in this one place; it is only ever
+    // checked here, never stored in the website code. Changing it signs every admin out.
+    function secret() { return 'CHANGE_ME'; }
+
+    function unlockPath() {
+      return /databases/$(database)/documents/unlock/$(request.auth.uid);
+    }
+    function isAdmin() {
+      return request.auth != null
+        && exists(unlockPath())
+        && get(unlockPath()).data.pw == secret();
+    }
+
+    // Anyone can view events; only someone who entered the password can change them.
+    match /events/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Each browser stores its own unlock record, which is accepted only with the right password.
+    match /unlock/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.pw == secret();
+    }
+  }
+}

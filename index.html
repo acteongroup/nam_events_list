@@ -44,6 +44,7 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 .rep i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:10px;font-weight:600}
 .reps{display:flex;flex-wrap:wrap;gap:5px}
 .muted{color:var(--muted)}
+.foot{text-align:center;padding:28px 12px;font-size:12px}.foot a{color:var(--muted);text-decoration:none}.foot a:hover{text-decoration:underline}
 /* list */
 .list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 .row{display:grid;grid-template-columns:96px 2.2fr 1.2fr 1.4fr 2fr;gap:16px;align-items:center;padding:14px 18px;border-top:1px solid var(--line);cursor:pointer}
@@ -136,8 +137,6 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
     </div>
     <button class="btn" id="add" style="display:none">+ New event</button>
     <button class="btn ghost" id="imp" style="display:none">Import CSV</button>
-    <button class="btn ghost" id="auth" style="display:none"></button>
-    <span class="muted" id="authMsg" style="font-size:12px"></span>
   </div>
 
   <div class="filters">
@@ -202,6 +201,20 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
   </div>
 </div></div>
 
+<!-- admin password modal -->
+<div class="overlay" id="admOv"><form class="modal" id="admForm" style="max-width:380px">
+  <h2>Admin sign in</h2>
+  <p class="muted" style="margin:4px 0 0;font-size:13px">Enter the admin password to add, edit or import events.</p>
+  <div class="field"><label for="admPw">Password</label><input id="admPw" type="password" autocomplete="current-password" required></div>
+  <div class="err" id="admErr" role="alert"></div>
+  <div class="actions">
+    <button type="button" class="btn ghost" id="admCancel">Cancel</button>
+    <button type="submit" class="btn" id="admGo">Sign in</button>
+  </div>
+</form></div>
+
+<footer class="foot" id="foot" style="display:none"><a href="#" id="adminLink">Admin</a></footer>
+
 <!-- detail modal -->
 <div class="overlay" id="detOv"><div class="modal detail" id="det"></div></div>
 
@@ -260,15 +273,24 @@ async function bootFirebase(cfg){
     auth = A.getAuth(app); storage = S.getStorage(app);
     A.onAuthStateChanged(auth, async u=>{
       user=u; canEditNow=false;
-      if(u && u.email){ try{ canEditNow = (await getDoc(doc(db,'editors',u.email.toLowerCase()))).exists(); }catch(e){} }
+      if(u){ try{ canEditNow = (await getDoc(doc(db,'unlock',u.uid))).exists(); }catch(e){} }
       updateAuthUI();
     });
   }
   const norm = (id,d) => ({ reps:[], files:[], url:'', contact:{name:'',email:'',phone:''}, ...d, id });
   return {
     canEdit: () => canEditNow, user: () => user,
-    signIn: () => A.signInWithPopup(auth, new A.GoogleAuthProvider()),
-    signOut: () => A.signOut(auth),
+    // Shared admin password: the password is only ever checked by the Firestore security rules.
+    async unlock(pw){
+      if(!auth.currentUser) await A.signInAnonymously(auth);
+      try{ await setDoc(doc(db,'unlock',auth.currentUser.uid),{pw}); }
+      catch(e){ throw new Error('Incorrect password, or no connection. Please try again.'); }
+      canEditNow = true; updateAuthUI();
+    },
+    async lock(){
+      try{ if(auth.currentUser) await deleteDoc(doc(db,'unlock',auth.currentUser.uid)); }catch(e){}
+      await A.signOut(auth);
+    },
     async init(onData){
       onSnapshot(collection(db,'events'),
         snap => onData(snap.docs.map(d=>norm(d.id,d.data()))),
@@ -304,12 +326,11 @@ async function bootFirebase(cfg){
   };
 }
 function updateAuthUI(){
-  const fb = !!FB_CFG && !EMBEDDED, u = backend.user();
+  const fb = !!FB_CFG && !EMBEDDED;
   $('add').style.display = backend.canEdit() ? '' : 'none';
   $('imp').style.display = backend.canEdit() ? '' : 'none';
-  $('auth').style.display = fb ? '' : 'none';
-  $('auth').textContent = u ? 'Sign out' : 'Team sign in';
-  $('authMsg').textContent = (fb && u && !backend.canEdit()) ? `${u.email} is not an authorised editor` : '';
+  $('foot').style.display = fb ? '' : 'none';
+  $('adminLink').textContent = backend.canEdit() ? 'Admin sign out' : 'Admin';
 }
 
 /* ============ Helpers ============ */
@@ -524,9 +545,9 @@ $('form').addEventListener('submit',async ev=>{
   catch(err){ $('err').textContent=(err&&err.message)||'Could not save. Please try again.'; }
   finally{ btn.disabled=false; btn.textContent='Save event'; }
 });
-function closeAll(){ ['formOv','detOv','impOv'].forEach(i=>$(i).classList.remove('open')); notifyHeight(); }
+function closeAll(){ ['formOv','detOv','impOv','admOv'].forEach(i=>$(i).classList.remove('open')); notifyHeight(); }
 $('cancel').onclick=closeAll;
-['formOv','detOv','impOv'].forEach(id=>$(id).addEventListener('mousedown',e=>{ if(e.target.id===id) closeAll(); }));
+['formOv','detOv','impOv','admOv'].forEach(id=>$(id).addEventListener('mousedown',e=>{ if(e.target.id===id) closeAll(); }));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); if((e.key==='Enter')&&e.target.matches('[data-id][tabindex]')) openDetail(e.target.dataset.id); });
 $('det').addEventListener('click',async e=>{
   const dl=e.target.closest('[data-dl]');
@@ -681,10 +702,18 @@ $('impGo').onclick=async()=>{
 
 /* ============ Wiring ============ */
 $('add').onclick=()=>openForm();
-$('auth').onclick=async()=>{
-  try{ backend.user() ? await backend.signOut() : await backend.signIn(); }
-  catch(err){ $('authMsg').textContent='Sign-in failed. Allow pop-ups for this site and try again.'; }
+$('adminLink').onclick=async e=>{
+  e.preventDefault();
+  if(backend.canEdit()){ await backend.lock(); return; }
+  $('admPw').value=''; $('admErr').textContent=''; $('admOv').classList.add('open'); $('admPw').focus();
 };
+$('admForm').onsubmit=async e=>{
+  e.preventDefault(); $('admGo').disabled=true; $('admErr').textContent='';
+  try{ await backend.unlock($('admPw').value); closeAll(); }
+  catch(err){ $('admErr').textContent=err.message; }
+  $('admGo').disabled=false;
+};
+$('admCancel').onclick=closeAll;
 $('q').addEventListener('input',e=>{ st.q=e.target.value; render(); });
 $('fWhen').onchange=e=>{ st.when=e.target.value; render(); };
 $('fRep').onchange=e=>{ st.rep=e.target.value; render(); };
