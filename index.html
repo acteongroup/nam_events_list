@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acteon Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E2A3A; --cyan:#00B0DB; --cyan-soft:#E6F7FC; --ink:#0E2A3A; --muted:#5F7480;
+  --line:#E3EAEE; --bg:#F6F9FB; --card:#fff; --radius:14px;
+  --shadow:0 1px 2px rgba(14,42,58,.06),0 6px 20px rgba(14,42,58,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:transparent;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
+.app{max-width:1200px;margin:0 auto;padding:16px;background:var(--bg)}
+/* toolbar */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{flex:1 1 220px;position:relative}
+.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.search svg{position:absolute;left:11px;top:11px;width:16px;height:16px;stroke:var(--muted)}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:500;display:flex;gap:6px;align-items:center}
+.seg button.on{background:var(--navy);color:#fff}
+.seg svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.btn{border:0;background:var(--cyan);color:#fff;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer}
+.btn:hover{filter:brightness(.95)}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.danger{background:#fff;color:#B42318;border:1px solid #F3C7C2}
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 6px}
+.filters select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;max-width:200px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted)}
+.pill.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.count{color:var(--muted);font-size:13px;margin:0 0 10px}
+.link{background:none;border:0;color:var(--cyan);cursor:pointer;font-weight:600;padding:4px 6px}
+/* tags */
+.tag{display:inline-block;padding:3px 9px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap}
+.rep{display:inline-flex;align-items:center;gap:6px;background:var(--cyan-soft);color:#04566B;border-radius:999px;padding:3px 10px 3px 4px;font-size:12px;font-weight:500}
+.rep i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:10px;font-weight:600}
+.reps{display:flex;flex-wrap:wrap;gap:5px}
+.muted{color:var(--muted)}
+/* list */
+.list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.row{display:grid;grid-template-columns:96px 2.2fr 1.2fr 1.4fr 2fr;gap:16px;align-items:center;padding:14px 18px;border-top:1px solid var(--line);cursor:pointer}
+.row:first-child{border-top:0}
+.row:hover{background:#FAFCFD}
+.row.head{cursor:default;background:#FAFCFD;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;padding:10px 18px}
+.row.head:hover{background:#FAFCFD}
+.datebox{text-align:center;line-height:1.1}
+.datebox b{display:block;font-size:20px}
+.datebox span{font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:600;letter-spacing:.05em}
+.name{font-weight:600}
+.sub{font-size:13px;color:var(--muted);margin-top:2px}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;cursor:pointer;display:flex;flex-direction:column;gap:10px;border-top:4px solid var(--cyan);transition:transform .12s}
+.card:hover{transform:translateY(-2px)}
+.card h3{margin:0;font-size:16px;line-height:1.3}
+.meta{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted)}
+.meta svg{flex:none;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;margin-top:2px}
+/* calendar */
+.cal{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.calhead{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.calhead h2{margin:0;font-size:17px}
+.calnav{display:flex;gap:6px}
+.calnav button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer;font-weight:600}
+.dow,.days{display:grid;grid-template-columns:repeat(7,1fr)}
+.dow div{padding:8px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:#FAFCFD}
+.day{min-height:104px;border-top:1px solid var(--line);border-left:1px solid var(--line);padding:6px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.day:nth-child(7n+1){border-left:0}
+.day.out{background:#FAFCFD}.day.out .dn{opacity:.4}
+.dn{font-size:12px;font-weight:600;color:var(--muted)}
+.day.today .dn{background:var(--cyan);color:#fff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center}
+.chip{font-size:11.5px;font-weight:600;padding:3px 6px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;text-align:left;border:0;width:100%}
+.more{font-size:11px;color:var(--muted);font-weight:600}
+.empty{text-align:center;padding:48px 16px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:var(--radius)}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(14,42,58,.55);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:10}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:560px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h2{margin:0 0 4px;font-size:20px}
+.field{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.field label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;width:100%}
+.field input:focus,.field select:focus,.search input:focus{outline:2px solid var(--cyan);outline-offset:-1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.chips .rep button{border:0;background:none;cursor:pointer;color:#04566B;font-size:14px;padding:0 0 0 2px}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap}
+.detail dl{display:grid;grid-template-columns:120px 1fr;gap:10px 12px;margin:16px 0 0;font-size:14px}
+.detail dt{color:var(--muted);font-weight:600}.detail dd{margin:0}
+.detail a{color:#0089AB}
+.files{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.file{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;background:#fff}
+.file span.fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.file .sz{color:var(--muted);font-size:12px}
+.file button{border:0;background:none;cursor:pointer;color:#0089AB;font-weight:600;font-size:13px;padding:2px 4px}
+.file button.rm{color:#B42318;font-size:16px}
+.hint{font-size:12px;color:var(--muted);margin-top:2px}
+.file a{color:#0089AB;font-weight:600;font-size:13px;text-decoration:none;padding:2px 4px}
+.modal.wide{max-width:980px}
+.imptools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 8px;font-size:13px}
+.imptools select{padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.imptable{max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.imptable table{width:100%;border-collapse:collapse;font-size:13px}
+.imptable th{position:sticky;top:0;background:#FAFCFD;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+.imptable td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:top}
+.imptable td select{padding:4px 6px;border:1px solid var(--line);border-radius:6px}
+.guess{display:inline-block;background:#FFF1D6;color:#8A5300;font-size:11px;font-weight:600;border-radius:5px;padding:2px 6px;white-space:nowrap}
+.err{color:#B42318;font-size:13px;margin-top:10px;min-height:16px}
+@media(max-width:780px){
+  .row{grid-template-columns:70px 1fr;gap:6px 12px}
+  .row.head{display:none}
+  .row>:nth-child(n+3){grid-column:2}
+  .day{min-height:70px;padding:3px}.chip{font-size:10px;padding:2px 3px}
+  .two{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="bar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search events, companies, locations, reps…" aria-label="Search events">
+    </div>
+    <div class="seg" id="views" role="tablist" aria-label="View">
+      <button data-v="list" class="on"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>List</button>
+      <button data-v="grid"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Grid</button>
+      <button data-v="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendar</button>
+    </div>
+    <button class="btn" id="add" style="display:none">+ New event</button>
+    <button class="btn ghost" id="imp" style="display:none">Import CSV</button>
+    <button class="btn ghost" id="auth" style="display:none"></button>
+    <span class="muted" id="authMsg" style="font-size:12px"></span>
+  </div>
+
+  <div class="filters">
+    <select id="fWhen" aria-label="When"><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="all">All dates</option></select>
+    <select id="fRep" aria-label="Acteon rep"></select>
+    <select id="fCompany" aria-label="Company"></select>
+    <select id="fLoc" aria-label="Location"></select>
+    <select id="fMonth" aria-label="Month"></select>
+    <button class="link" id="clear">Clear filters</button>
+  </div>
+  <div class="pills" id="pills" aria-label="Event type"></div>
+  <p class="count" id="count"></p>
+  <div id="out"></div>
+</div>
+
+<!-- form modal -->
+<div class="overlay" id="formOv"><form class="modal" id="form" novalidate>
+  <h2 id="formTitle">New event</h2>
+  <div class="field"><label for="fName">Event name *</label><input id="fName" maxlength="120" required></div>
+  <div class="field"><label for="fComp">Company name *</label><input id="fComp" maxlength="120" required></div>
+  <div class="two">
+    <div class="field"><label for="fStart">Start date *</label><input id="fStart" type="date" required></div>
+    <div class="field"><label for="fEnd">End date *</label><input id="fEnd" type="date" required></div>
+  </div>
+  <div class="two">
+    <div class="field"><label for="fType">Type of event *</label><select id="fType" required></select></div>
+    <div class="field"><label for="fLocation">Location *</label><input id="fLocation" maxlength="160" placeholder="City, State or venue" required></div>
+  </div>
+  <div class="field"><label for="fUrl">Event URL</label><input id="fUrl" type="url" maxlength="500" placeholder="https://"></div>
+  <div class="field"><label for="fRepIn">Acteon reps needed</label>
+    <div class="chips" id="repChips"></div>
+    <input id="fRepIn" list="repList" placeholder="Type a name and press Enter">
+    <datalist id="repList"></datalist>
+  </div>
+  <div class="field"><label for="fCName">Event contact *</label><input id="fCName" maxlength="120" placeholder="Contact name" required></div>
+  <div class="two">
+    <div class="field"><label for="fCEmail">Contact email</label><input id="fCEmail" type="email" maxlength="160"></div>
+    <div class="field"><label for="fCPhone">Contact phone</label><input id="fCPhone" type="tel" maxlength="40"></div>
+  </div>
+  <div class="field"><label for="fFile">Documents</label>
+    <div class="files" id="fileList"></div>
+    <input id="fFile" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.png,.jpg,.jpeg">
+    <div class="hint" id="fileHint"></div>
+  </div>
+  <div class="err" id="err" role="alert"></div>
+  <div class="actions">
+    <button type="button" class="btn ghost" id="cancel">Cancel</button>
+    <button type="submit" class="btn">Save event</button>
+  </div>
+</form></div>
+
+<!-- import modal -->
+<div class="overlay" id="impOv"><div class="modal wide" id="impBox">
+  <h2>Import events from CSV</h2>
+  <p class="muted" style="margin:4px 0 0;font-size:13px">Choose the Notion CSV export (unzip it first). Nothing is saved until you click Import.</p>
+  <div class="field"><input id="impFile" type="file" accept=".csv,text/csv"></div>
+  <div id="impBody"></div>
+  <div class="err" id="impErr" role="alert"></div>
+  <div class="actions">
+    <button type="button" class="btn ghost" id="impCancel">Close</button>
+    <button type="button" class="btn" id="impGo" disabled>Import</button>
+  </div>
+</div></div>
+
+<!-- detail modal -->
+<div class="overlay" id="detOv"><div class="modal detail" id="det"></div></div>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+/* ============ Data layer ============
+   Two interchangeable backends with the same interface:
+   - Firebase (Firestore + Storage + Auth) when firebase-config.js has values
+   - Local demo mode (browser storage) otherwise */
+const FB_CFG = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) ? window.FIREBASE_CONFIG : null;
+const EMBEDDED = window.parent !== window;   // inside Foleon/iframe => read-only
+let events = [], loaded = false;
+const Local = {
+  KEY: 'acteon-events-v1',
+  load(){ try{ const r=localStorage.getItem(this.KEY); if(r) return JSON.parse(r); }catch(e){} return seed(); },
+  persist(list){ try{ localStorage.setItem(this.KEY, JSON.stringify(list)); return true; }catch(e){ return false; } },
+  canEdit: () => true, user: () => null,
+  async init(onData){ onData(this.load()); },
+  async save(rec,isEdit){
+    const next = isEdit ? events.map(x=>x.id===rec.id?rec:x) : [...events,rec];
+    if(!this.persist(next)) throw new Error('Storage is full. Remove or shrink some documents and try again.');
+    events = next; renderFilterControls(); render();
+  },
+  async remove(ev){ const next=events.filter(x=>x.id!==ev.id); this.persist(next); events=next; renderFilterControls(); render(); },
+  async bulkSave(recs){
+    const next=[...events,...recs];
+    if(!this.persist(next)) throw new Error('Browser storage is full. Use the Firebase-backed version for large imports.');
+    events=next; renderFilterControls(); render();
+  }
+};
+function seed(){ // fictional sample data
+  const e=(id,name,company,start,end,type,location,reps,cn,ce,cp)=>({id,name,company,start,end,type,location,reps,contact:{name:cn,email:ce,phone:cp}});
+  return [
+    e('s1','Greater Metro Trade Show','Northbridge Dental Expo','2026-11-29','2026-12-01','Trade Show','Convention Center, New York, NY',['Alex Morgan','Jordan Lee','Casey Rivera'],'Pat Sample','pat@example.com','555-0101'),
+    e('s2','Implant Fast Track','Summit Education Group','2026-11-30','2026-12-04','Pathway Cube/CBCT','Phoenix, AZ',['Taylor Brooks'],'Sam Example','sam@example.com','555-0102'),
+    e('s3','Team Smile Day','Team Smile','2026-12-04','2026-12-04','Team Smile','Kansas City, MO',['Riley Chen'],'Robin Demo','robin@example.com','555-0103'),
+    e('s4','Winter Dealer Summit','Lakeside Dental Supply','2027-01-14','2027-01-15','Dealer Events','Orlando, FL',['Alex Morgan','Taylor Brooks'],'Drew Sample','drew@example.com','555-0104'),
+    e('s5','Piezo Mastery Course','Acteon Education','2027-01-22','2027-01-23','Acteon CE','Mount Laurel, NJ',['Jordan Lee'],'Morgan Test','morgan@example.com','555-0105'),
+    e('s6','Midwinter Meeting','Chicago Dental Society','2027-02-18','2027-02-21','Trade Show','McCormick Place, Chicago, IL',['Alex Morgan','Casey Rivera','Riley Chen','Jordan Lee'],'Jamie Example','jamie@example.com','555-0106'),
+    e('s7','Regional Study Club','Harbor Study Club','2027-03-05','2027-03-05','CE Webinar','Online',['Taylor Brooks'],'Quinn Sample','quinn@example.com','555-0107'),
+    e('s8','Imaging Open House','Ridgeway Dental Partners','2026-10-10','2026-10-10','Dealer Events','Raleigh, NC',['Casey Rivera'],'Avery Demo','avery@example.com','555-0108')
+  ];
+}
+
+/* ---------- Firebase backend ---------- */
+let backend = Local;
+async function bootFirebase(cfg){
+  const B = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  const { initializeApp } = await import(B+'firebase-app.js');
+  const { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, writeBatch } = await import(B+'firebase-firestore.js');
+  const app = initializeApp({ apiKey:cfg.apiKey, authDomain:cfg.authDomain, projectId:cfg.projectId, storageBucket:cfg.storageBucket, messagingSenderId:cfg.messagingSenderId, appId:cfg.appId });
+  const db = getFirestore(app);
+  let user=null, canEditNow=false, A=null, S=null, auth=null, storage=null;
+  if(!EMBEDDED){ // editing happens on the Netlify URL itself, never inside the Foleon frame
+    A = await import(B+'firebase-auth.js'); S = await import(B+'firebase-storage.js');
+    auth = A.getAuth(app); storage = S.getStorage(app);
+    A.onAuthStateChanged(auth, async u=>{
+      user=u; canEditNow=false;
+      if(u && u.email){ try{ canEditNow = (await getDoc(doc(db,'editors',u.email.toLowerCase()))).exists(); }catch(e){} }
+      updateAuthUI();
+    });
+  }
+  const norm = (id,d) => ({ reps:[], files:[], url:'', contact:{name:'',email:'',phone:''}, ...d, id });
+  return {
+    canEdit: () => canEditNow, user: () => user,
+    signIn: () => A.signInWithPopup(auth, new A.GoogleAuthProvider()),
+    signOut: () => A.signOut(auth),
+    async init(onData){
+      onSnapshot(collection(db,'events'),
+        snap => onData(snap.docs.map(d=>norm(d.id,d.data()))),
+        () => { loaded=true; $('count').textContent='Could not load events.'; });
+    },
+    async save(rec,isEdit){
+      const files=[];
+      for(const f of rec.files){
+        if(f.url){ files.push(f); continue; }
+        const blob = await (await fetch(f.data)).blob();
+        const path = `events/${rec.id}/${Date.now()}-${f.name.replace(/[^\w.\-]+/g,'_')}`;
+        const r = S.ref(storage, path);
+        await S.uploadBytes(r, blob, { contentType: blob.type });
+        files.push({ name:f.name, size:f.size, path, url: await S.getDownloadURL(r) });
+      }
+      const old = events.find(x=>x.id===rec.id);
+      const { id, ...data } = rec; data.files = files; data.updatedBy = user?.email || ''; data.updatedAt = Date.now();
+      await setDoc(doc(db,'events',id), data);
+      for(const f of (old?.files||[])){ if(f.path && !files.some(n=>n.path===f.path)){ try{ await S.deleteObject(S.ref(storage,f.path)); }catch(e){} } }
+    },
+    async bulkSave(recs){
+      // small batches keep each commit well inside Firestore's security-rule lookup limits
+      for(let i=0;i<recs.length;i+=15){
+        const b=writeBatch(db);
+        recs.slice(i,i+15).forEach(r=>{ const { id, ...data } = r; data.updatedBy=user?.email||''; data.updatedAt=Date.now(); b.set(doc(db,'events',id),data); });
+        await b.commit();
+      }
+    },
+    async remove(ev){
+      await deleteDoc(doc(db,'events',ev.id));
+      for(const f of (ev.files||[])){ if(f.path){ try{ await S.deleteObject(S.ref(storage,f.path)); }catch(e){} } }
+    }
+  };
+}
+function updateAuthUI(){
+  const fb = !!FB_CFG && !EMBEDDED, u = backend.user();
+  $('add').style.display = backend.canEdit() ? '' : 'none';
+  $('imp').style.display = backend.canEdit() ? '' : 'none';
+  $('auth').style.display = fb ? '' : 'none';
+  $('auth').textContent = u ? 'Sign out' : 'Team sign in';
+  $('authMsg').textContent = (fb && u && !backend.canEdit()) ? `${u.email} is not an authorised editor` : '';
+}
+
+/* ============ Helpers ============ */
+const TYPES = ['Trade Show','Dealer Events','Hands On Cube','Hands on Newtron','Pathway Cube/CBCT','Team Smile','Acteon CE','CE Webinar','RDH Education','RDH Event','Internal Meeting','Other'];
+const COLORS = {'Trade Show':['#DCEBFA','#1B4F8F'],'Dealer Events':['#FDE9CF','#9A5B05'],'Hands On Cube':['#E3F5E5','#1E6B2B'],'Hands on Newtron':['#D9F2EE','#0F6A5E'],'Pathway Cube/CBCT':['#FFF3C4','#7A5B00'],'Team Smile':['#FAD9DA','#9B1C2B'],'Acteon CE':['#E0E4F7','#2F3E9E'],'CE Webinar':['#EBE1F7','#5B2E91'],'RDH Education':['#F9DDEE','#9A1F6A'],'RDH Event':['#FBE3D3','#A04312'],'Internal Meeting':['#E4E8EB','#3B4A54'],'Other':['#E8EDF0','#40545F']};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+const pd = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtRange(a,b){
+  const s=pd(a), e=pd(b);
+  if(a===b) return `${MON[s.getMonth()]} ${s.getDate()}, ${s.getFullYear()}`;
+  if(s.getFullYear()===e.getFullYear()&&s.getMonth()===e.getMonth()) return `${MON[s.getMonth()]} ${s.getDate()}–${e.getDate()}, ${e.getFullYear()}`;
+  return `${MON[s.getMonth()]} ${s.getDate()} – ${MON[e.getMonth()]} ${e.getDate()}, ${e.getFullYear()}`;
+}
+const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const typeTag = t => { const c=COLORS[t]||COLORS.Other; return `<span class="tag" style="background:${c[0]};color:${c[1]}">${esc(t)}</span>`; };
+const repChip = r => `<span class="rep"><i>${esc(initials(r))}</i>${esc(r)}</span>`;
+const todayISO = () => iso(new Date());
+const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+/* ============ State ============ */
+const st = { view:'list', q:'', when:'upcoming', rep:'', company:'', loc:'', month:'', types:new Set(), calY:new Date().getFullYear(), calM:new Date().getMonth() };
+let editingId = null, formReps = [], formFiles = [];
+const MAX_FILE = (FB_CFG ? 10 : 1.5)*1024*1024, MAX_FILES = 5;
+const OK_EXT = ['pdf','doc','docx','xls','xlsx','ppt','pptx','csv','txt','png','jpg','jpeg'];
+const safeUrl = u => { try{ const x=new URL(u); return (x.protocol==='https:'||x.protocol==='http:') ? x.href : ''; }catch(e){ return ''; } };
+const fmtSize = n => n>=1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB';
+function downloadFile(f){
+  const [meta,b64]=f.data.split(','); const mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/octet-stream';
+  const bin=atob(b64), arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  const url=URL.createObjectURL(new Blob([arr],{type:mime})), a=document.createElement('a');
+  a.href=url; a.download=f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+/* ============ Filtering ============ */
+function filtered(ignoreWhen){
+  const t=todayISO(), q=st.q.trim().toLowerCase();
+  return events.filter(e=>{
+    if(!ignoreWhen){
+      if(st.when==='upcoming' && e.end < t) return false;
+      if(st.when==='past' && e.end >= t) return false;
+    }
+    if(st.types.size && !st.types.has(e.type)) return false;
+    if(st.rep && !e.reps.includes(st.rep)) return false;
+    if(st.company && e.company!==st.company) return false;
+    if(st.loc && e.location!==st.loc) return false;
+    if(st.month && !(e.start.slice(0,7)<=st.month && e.end.slice(0,7)>=st.month)) return false;
+    if(q && ![e.name,e.company,e.location,e.type,e.contact.name,...e.reps].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=> st.when==='past' ? b.start.localeCompare(a.start) : a.start.localeCompare(b.start));
+}
+
+/* ============ Filter controls ============ */
+function fillSelect(id,label,values,current){
+  const el=$(id);
+  el.innerHTML = `<option value="">${esc(label)}</option>` + values.map(v=>`<option value="${esc(v.v)}"${v.v===current?' selected':''}>${esc(v.l)}</option>`).join('');
+}
+function renderFilterControls(){
+  const uniq = f => [...new Set(events.flatMap(f))].filter(Boolean).sort((a,b)=>a.localeCompare(b));
+  fillSelect('fRep','All Acteon reps',uniq(e=>e.reps).map(v=>({v,l:v})),st.rep);
+  fillSelect('fCompany','All companies',uniq(e=>[e.company]).map(v=>({v,l:v})),st.company);
+  fillSelect('fLoc','All locations',uniq(e=>[e.location]).map(v=>({v,l:v})),st.loc);
+  const months=new Set();
+  events.forEach(e=>{ let d=pd(e.start); const end=pd(e.end); d=new Date(d.getFullYear(),d.getMonth(),1);
+    while(d<=end){ months.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); d=new Date(d.getFullYear(),d.getMonth()+1,1);} });
+  fillSelect('fMonth','Any month',[...months].sort().map(m=>({v:m,l:`${MONL[+m.slice(5)-1]} ${m.slice(0,4)}`})),st.month);
+  $('fWhen').value=st.when;
+  $('pills').innerHTML = TYPES.map(t=>`<button type="button" class="pill${st.types.has(t)?' on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('');
+}
+
+/* ============ Views ============ */
+function render(){
+  if(!loaded){ $('out').innerHTML='<div class="empty">Loading events…</div>'; return; }
+  const list = filtered();
+  $('count').textContent = st.view==='calendar' ? '' : `${list.length} event${list.length===1?'':'s'}`;
+  const out=$('out');
+  if(st.view==='calendar'){ out.innerHTML = calendarHTML(); }
+  else if(!list.length){ out.innerHTML = '<div class="empty">No events match your filters.</div>'; }
+  else if(st.view==='list'){ out.innerHTML = listHTML(list); }
+  else { out.innerHTML = gridHTML(list); }
+  notifyHeight();
+}
+function listHTML(list){
+  return `<div class="list"><div class="row head"><div>Date</div><div>Event</div><div>Type</div><div>Location</div><div>Acteon reps</div></div>` +
+  list.map(e=>{ const s=pd(e.start); return `
+    <div class="row" data-id="${esc(e.id)}" tabindex="0">
+      <div class="datebox"><span>${MON[s.getMonth()]}</span><b>${s.getDate()}</b><span>${fmtRange(e.start,e.end).includes('–')?'multi-day':s.getFullYear()}</span></div>
+      <div><div class="name">${esc(e.name)}</div><div class="sub">${esc([e.company,fmtRange(e.start,e.end)].filter(Boolean).join(' · '))}</div></div>
+      <div>${typeTag(e.type)}</div>
+      <div>${esc(e.location)}</div>
+      <div class="reps">${e.reps.length? e.reps.map(repChip).join('') : '<span class="muted">—</span>'}</div>
+    </div>`; }).join('') + `</div>`;
+}
+const ico = {
+  pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  bld:'<svg viewBox="0 0 24 24"><path d="M4 21V4h10v17M14 9h6v12M8 8h2M8 12h2M8 16h2"/></svg>'
+};
+function gridHTML(list){
+  return `<div class="grid">` + list.map(e=>{ const c=COLORS[e.type]||COLORS.Other; return `
+    <div class="card" data-id="${esc(e.id)}" tabindex="0" style="border-top-color:${c[1]}">
+      <div>${typeTag(e.type)}</div>
+      <h3>${esc(e.name)}</h3>
+      ${e.company?`<div class="meta">${ico.bld}<span>${esc(e.company)}</span></div>`:''}
+      <div class="meta">${ico.cal}<span>${esc(fmtRange(e.start,e.end))}</span></div>
+      ${e.location?`<div class="meta">${ico.pin}<span>${esc(e.location)}</span></div>`:''}
+      ${e.contact.name?`<div class="meta">${ico.user}<span>${esc(e.contact.name)}</span></div>`:''}
+      ${(e.files||[]).length?`<div class="meta"><svg viewBox="0 0 24 24"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 5 5L10.5 19a1.7 1.7 0 0 1-2.5-2.5L16 8.5"/></svg><span>${e.files.length} document${e.files.length>1?'s':''}</span></div>`:''}
+      <div class="reps">${e.reps.map(repChip).join('')}</div>
+    </div>`; }).join('') + `</div>`;
+}
+function calendarHTML(){
+  const list=filtered(true).filter(e=>true);
+  const y=st.calY, m=st.calM, first=new Date(y,m,1), start=new Date(y,m,1-first.getDay());
+  const t=todayISO(); let cells='';
+  for(let i=0;i<42;i++){
+    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i), k=iso(d);
+    const ev=list.filter(e=>e.start<=k && e.end>=k);
+    const chips=ev.slice(0,3).map(e=>{const c=COLORS[e.type]||COLORS.Other; return `<button type="button" class="chip" data-id="${esc(e.id)}" title="${esc(e.name)}" style="background:${c[0]};color:${c[1]}">${esc(e.name)}</button>`;}).join('');
+    cells+=`<div class="day${d.getMonth()!==m?' out':''}${k===t?' today':''}"><div class="dn">${d.getDate()}</div>${chips}${ev.length>3?`<div class="more">+${ev.length-3} more</div>`:''}</div>`;
+    if(i===34 && new Date(start.getFullYear(),start.getMonth(),start.getDate()+35).getMonth()!==m) break;
+  }
+  return `<div class="cal"><div class="calhead"><h2>${MONL[m]} ${y}</h2><div class="calnav"><button data-nav="-1" aria-label="Previous month">‹</button><button data-nav="0">Today</button><button data-nav="1" aria-label="Next month">›</button></div></div>
+  <div class="dow">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div>${d}</div>`).join('')}</div><div class="days">${cells}</div></div>`;
+}
+
+/* ============ Detail modal ============ */
+function openDetail(id){
+  const e=events.find(x=>x.id===id); if(!e) return;
+  const c=e.contact, mail = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(c.email||'');
+  $('det').innerHTML = `
+    <div>${typeTag(e.type)}</div>
+    <h2 style="margin-top:10px">${esc(e.name)}</h2>
+    ${e.company?`<div class="sub">${esc(e.company)}</div>`:''}
+    <dl>
+      <dt>Dates</dt><dd>${esc(fmtRange(e.start,e.end))}</dd>
+      <dt>Location</dt><dd>${esc(e.location)}</dd>
+      <dt>Acteon reps</dt><dd class="reps">${e.reps.length?e.reps.map(repChip).join(''):'<span class="muted">None assigned</span>'}</dd>
+      ${safeUrl(e.url||'')?`<dt>Event URL</dt><dd><a href="${esc(safeUrl(e.url))}" target="_blank" rel="noopener noreferrer">${esc(safeUrl(e.url).replace(/^https?:\/\//,'').replace(/\/$/,''))}</a></dd>`:''}
+      ${(e.files||[]).length?`<dt>Documents</dt><dd class="files">${e.files.map((f,i)=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="sz">${fmtSize(f.size)}</span>${f.url&&safeUrl(f.url)?`<a href="${esc(safeUrl(f.url))}" target="_blank" rel="noopener noreferrer">Download</a>`:`<button type="button" data-dl="${i}" data-id="${esc(e.id)}">Download</button>`}</div>`).join('')}</dd>`:''}
+      <dt>Event contact</dt><dd>${esc(c.name)}${mail?`<br><a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:''}${c.phone?`<br>${esc(c.phone)}`:''}</dd>
+    </dl>
+    <div class="actions">
+      ${backend.canEdit()?`<button class="btn danger" data-act="del" data-id="${esc(id)}">Delete</button>
+      <button class="btn ghost" data-act="edit" data-id="${esc(id)}">Edit</button>`:''}
+      <button class="btn" data-act="close">Close</button>
+    </div>`;
+  $('detOv').classList.add('open'); notifyHeight();
+}
+
+/* ============ Form ============ */
+function openForm(id){
+  editingId=id||null; const e=id?events.find(x=>x.id===id):null;
+  $('formTitle').textContent = e?'Edit event':'New event';
+  $('fType').innerHTML = [...new Set([...TYPES, ...(e?[e.type]:[])])].map(t=>`<option>${esc(t)}</option>`).join('');
+  $('fName').value=e?.name||''; $('fComp').value=e?.company||''; $('fStart').value=e?.start||''; $('fEnd').value=e?.end||'';
+  $('fType').value=e?.type||TYPES[0]; $('fLocation').value=e?.location||'';
+  $('fCName').value=e?.contact.name||''; $('fCEmail').value=e?.contact.email||''; $('fCPhone').value=e?.contact.phone||'';
+  $('fUrl').value=e?.url||''; formFiles=[...(e?.files||[])]; $('fFile').value=''; renderFileList();
+  formReps=[...(e?.reps||[])]; renderRepChips(); $('err').textContent='';
+  $('repList').innerHTML=[...new Set(events.flatMap(x=>x.reps))].sort().map(r=>`<option value="${esc(r)}">`).join('');
+  $('detOv').classList.remove('open'); $('formOv').classList.add('open'); $('fName').focus();
+}
+function renderFileList(){
+  $('fileList').innerHTML=formFiles.map((f,i)=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="sz">${fmtSize(f.size)}</span><button type="button" class="rm" data-rmf="${i}" aria-label="Remove ${esc(f.name)}">×</button></div>`).join('');
+}
+$('fileList').addEventListener('click',e=>{ const b=e.target.closest('[data-rmf]'); if(b){ formFiles.splice(+b.dataset.rmf,1); renderFileList(); }});
+$('fFile').addEventListener('change',async e=>{
+  const errs=[];
+  for(const file of [...e.target.files]){
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    if(!OK_EXT.includes(ext)) errs.push(`${file.name}: file type not allowed`);
+    else if(file.size>MAX_FILE) errs.push(`${file.name}: over ${fmtSize(MAX_FILE)}`);
+    else if(formFiles.length>=MAX_FILES) errs.push(`Maximum ${MAX_FILES} files`);
+    else { const data=await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(file); });
+      formFiles.push({name:file.name.slice(0,120), size:file.size, data}); }
+  }
+  e.target.value=''; renderFileList(); $('err').textContent=errs.join(' · ');
+});
+function renderRepChips(){
+  $('repChips').innerHTML=formReps.map((r,i)=>`<span class="rep"><i>${esc(initials(r))}</i>${esc(r)}<button type="button" data-rm="${i}" aria-label="Remove ${esc(r)}">×</button></span>`).join('');
+}
+function addRep(){
+  const v=$('fRepIn').value.trim().slice(0,80);
+  if(v && !formReps.some(r=>r.toLowerCase()===v.toLowerCase())){ formReps.push(v); renderRepChips(); }
+  $('fRepIn').value='';
+}
+$('fRepIn').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===','){ e.preventDefault(); addRep(); }});
+$('fRepIn').addEventListener('change',addRep);
+$('repChips').addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(b){ formReps.splice(+b.dataset.rm,1); renderRepChips(); }});
+$('form').addEventListener('submit',async ev=>{
+  ev.preventDefault(); addRep();
+  const v=id=>$(id).value.trim();
+  const rec={ id:editingId||uid(), name:v('fName'), company:v('fComp'), start:$('fStart').value, end:$('fEnd').value, type:$('fType').value, location:v('fLocation'), reps:[...formReps],
+    contact:{name:v('fCName'), email:v('fCEmail'), phone:v('fCPhone')}, url:v('fUrl'), files:[...formFiles] };
+  let msg='';
+  if(rec.url && !safeUrl(rec.url)) msg='Event URL must start with http:// or https://.';
+  else if(rec.url) rec.url=safeUrl(rec.url);
+  if(msg){ $('err').textContent=msg; return; }
+  const old = editingId ? events.find(x=>x.id===editingId) : null;
+  const miss = (val,key) => !val && !(old && !(key==='contact' ? old.contact.name : old[key])); // imported rows may lack some fields; don't block editing them
+  if(!rec.name||!rec.start||!rec.end||miss(rec.company,'company')||miss(rec.location,'location')||miss(rec.contact.name,'contact')) msg='Please complete all required fields.';
+  else if(rec.end<rec.start) msg='End date cannot be before the start date.';
+  else if(rec.contact.email && !/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(rec.contact.email)) msg='Enter a valid contact email.';
+  if(msg){ $('err').textContent=msg; return; }
+  const btn=$('form').querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='Saving…';
+  try{ await backend.save(rec,!!editingId); closeAll(); }
+  catch(err){ $('err').textContent=(err&&err.message)||'Could not save. Please try again.'; }
+  finally{ btn.disabled=false; btn.textContent='Save event'; }
+});
+function closeAll(){ ['formOv','detOv','impOv'].forEach(i=>$(i).classList.remove('open')); notifyHeight(); }
+$('cancel').onclick=closeAll;
+['formOv','detOv','impOv'].forEach(id=>$(id).addEventListener('mousedown',e=>{ if(e.target.id===id) closeAll(); }));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); if((e.key==='Enter')&&e.target.matches('[data-id][tabindex]')) openDetail(e.target.dataset.id); });
+$('det').addEventListener('click',async e=>{
+  const dl=e.target.closest('[data-dl]');
+  if(dl){ const ev=events.find(x=>x.id===dl.dataset.id); const f=ev&&ev.files[+dl.dataset.dl]; if(f) downloadFile(f); return; }
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  if(b.dataset.act==='close') closeAll();
+  if(b.dataset.act==='edit') openForm(b.dataset.id);
+  if(b.dataset.act==='del' && confirm('Delete this event? This cannot be undone.')){
+    try{ await backend.remove(events.find(x=>x.id===b.dataset.id)); closeAll(); }
+    catch(err){ alert('Could not delete: ' + ((err&&err.message)||'unknown error')); }
+  }
+});
+
+/* ============ CSV import ============ */
+/*IMPORT-START*/
+const MONI={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+function parseCSV(text){
+  text=text.replace(/^﻿/,''); const rows=[]; let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(cell); cell=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(cell); cell=''; if(row.length>1||row[0]!=='') rows.push(row); row=[]; }
+    else cell+=c;
+  }
+  if(cell!==''||row.length){ row.push(cell); rows.push(row); }
+  if(!rows.length) return [];
+  const head=rows[0].map(h=>h.trim());
+  return rows.slice(1).map(r=>Object.fromEntries(head.map((h,i)=>[h,r[i]||''])));
+}
+function parseMD(s){
+  const m=/([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2})\b/.exec(s||''); if(!m) return null;
+  const mo=MONI[m[1].toLowerCase()]; if(!mo) return null;
+  const y=/\b(20\d\d)\b/.exec(s); return {m:mo,d:+m[2],y:y?+y[1]:0};
+}
+function parseRange(s){
+  const parts=String(s||'').split('→'); const a=parseMD(parts[0]); if(!a) return null;
+  const b=parts[1]?(parseMD(parts[1])||a):a; return {a,b};
+}
+function inferYear(md,row,today){
+  if(md.y) return {year:md.y,sure:true};
+  const nm=/\b(20\d\d)\b/.exec(row['Course/Event']||''); if(nm) return {year:+nm[1],sure:true};
+  const dn=/([A-Za-z]{3})[a-z]*\s+(\d{1,2}),?\s+(20\d\d)/.exec(row['Date Needed']||'');
+  if(dn){ const dm=MONI[dn[1].toLowerCase()]; let y=+dn[3]; if(dm && md.m*100+md.d < dm*100+(+dn[2])) y++; return {year:y,sure:true}; }
+  const lim=new Date(today.getFullYear(),today.getMonth()+6,today.getDate());
+  let y=lim.getFullYear(); if(new Date(y,md.m-1,md.d)>lim) y--;
+  return {year:y,sure:false};
+}
+function parseContact(t){
+  t=(t||'').replace(/mailto:/gi,' ');
+  const emails=[...new Set((t.match(/[^\s@<>"',;()]+@[^\s@<>"',;()]+\.[A-Za-z]{2,}/g)||[]).map(x=>x.replace(/[.,;:]+$/,'')))];
+  const phones=t.match(/\(?\d{3}\)?[\s.\-–]*\d{3}[\s.\-–]\d{4}/g)||[];
+  let name=t; emails.concat(phones).forEach(x=>{ name=name.split(x).join(' '); });
+  name=name.replace(/\bcontact\s*:?/ig,' ').replace(/(^|\s)[–—\-:;,|.]+(?=\s|$)/g,' ').replace(/\s+/g,' ').trim();
+  name=[name,...emails.slice(1),...phones.slice(1).map(p=>p.trim())].filter(Boolean).join(', ');
+  return {name:name.slice(0,120), email:(emails[0]||'').slice(0,160), phone:(phones[0]||'').trim().slice(0,40)};
+}
+function mapType(t){ t=(t||'').trim().toLowerCase(); return TYPES.find(x=>x.toLowerCase()===t) || 'Other'; }
+function buildImportRows(csv, today){
+  const rows=[], skipped={noName:0,noDate:0};
+  for(const r of csv){
+    const name=(r['Course/Event']||'').trim().slice(0,120);
+    if(!name){ skipped.noName++; continue; }
+    const rg=parseRange(r['Start-End']); if(!rg){ skipped.noDate++; continue; }
+    const yr=inferYear(rg.a,r,today);
+    rows.push({ name, company:'', type:mapType(r['Event Type']),
+      location:(r['Location']||'').replace(/\s*\n\s*/g,', ').trim().slice(0,160),
+      reps:[...new Set((r['Rep(s) Attending']||'').split(/[,;\n]/).map(x=>x.trim().slice(0,80)).filter(Boolean))],
+      contact:parseContact(r['Event/Shipping Contact']||r['📅 Event Contact']||''),
+      url:safeUrl((r['Event Link']||'').trim()).slice(0,500), files:[],
+      sm:rg.a.m, sd:rg.a.d, em:rg.b.m, ed:rg.b.d, year:yr.year, sure:yr.sure, include:true, pos:rows.length });
+  }
+  // Years Notion dropped: borrow from the nearest row (in export order) whose year is known,
+  // choosing the year that lands the date closest to that neighbour. Still flagged "guessed".
+  const known=rows.filter(r=>r.sure), ord=(y,m,d)=>y*12+m-1+d/31;
+  if(known.length) rows.forEach(r=>{
+    if(r.sure) return;
+    let nb=known[0]; for(const k of known) if(Math.abs(k.pos-r.pos)<Math.abs(nb.pos-r.pos)) nb=k;
+    let best=r.year, gap=1e9;
+    for(const y of [nb.year-1,nb.year,nb.year+1]){ const g=Math.abs(ord(y,r.sm,r.sd)-ord(nb.year,nb.sm,nb.sd)); if(g<gap){ gap=g; best=y; } }
+    r.year=best;
+  });
+  return {rows,skipped};
+}
+function importDates(r){
+  const p=n=>String(n).padStart(2,'0'), ok=(y,m,d)=>{ const t=new Date(y,m-1,d); return t.getMonth()===m-1&&t.getDate()===d; };
+  const ey = (r.em*100+r.ed < r.sm*100+r.sd) ? r.year+1 : r.year;
+  if(!ok(r.year,r.sm,r.sd)||!ok(ey,r.em,r.ed)) return null;
+  return {start:`${r.year}-${p(r.sm)}-${p(r.sd)}`, end:`${ey}-${p(r.em)}-${p(r.ed)}`};
+}
+/*IMPORT-END*/
+let imp={rows:[],skipped:{noName:0,noDate:0},onlyGuess:false};
+function renderImport(){
+  const shown=imp.rows.map((r,i)=>({r,i})).filter(x=>!imp.onlyGuess||!x.r.sure);
+  const guessed=imp.rows.filter(r=>!r.sure).length, chosen=imp.rows.filter(r=>r.include).length;
+  const yrOpts=y=>[2025,2026,2027,2028].map(v=>`<option${v===y?' selected':''}>${v}</option>`).join('');
+  $('impBody').innerHTML = `
+    <p style="font-size:13px;margin:14px 0 0"><b>${imp.rows.length}</b> events found${imp.skipped.noDate?` · ${imp.skipped.noDate} skipped (no date)`:''}${imp.skipped.noName?` · ${imp.skipped.noName} skipped (no name)`:''} · <b>${guessed}</b> with a guessed year</p>
+    <div class="imptools">
+      <label><input type="checkbox" id="impOnly"${imp.onlyGuess?' checked':''}> Show only guessed years</label>
+      <span>Set guessed rows to <select id="impBulkY">${yrOpts(2026)}</select> <button type="button" class="btn ghost" id="impBulk" style="padding:5px 10px">Apply</button></span>
+      <button type="button" class="link" id="impAll">Select all</button><button type="button" class="link" id="impNone">Select none</button>
+    </div>
+    <div class="imptable"><table><thead><tr><th></th><th>Event</th><th>Type</th><th>Dates</th><th>Year</th><th>Location</th></tr></thead><tbody>` +
+    shown.map(({r,i})=>{ const d=importDates(r); return `<tr>
+      <td><input type="checkbox" data-inc="${i}"${r.include&&d?' checked':''}${d?'':' disabled'}></td>
+      <td>${esc(r.name)}</td><td>${typeTag(r.type)}</td>
+      <td>${d?esc(fmtRange(d.start,d.end)):'<span class="guess">Invalid date</span>'}</td>
+      <td><select data-yr="${i}">${yrOpts(r.year)}</select> ${r.sure?'':'<span class="guess">guessed</span>'}</td>
+      <td>${esc(r.location)}</td></tr>`; }).join('') + `</tbody></table></div>`;
+  $('impGo').disabled = !chosen; $('impGo').textContent = `Import ${chosen} event${chosen===1?'':'s'}`;
+}
+$('imp').onclick=()=>{ imp={rows:[],skipped:{noName:0,noDate:0},onlyGuess:false}; $('impBody').innerHTML=''; $('impErr').textContent=''; $('impFile').value=''; $('impGo').disabled=true; $('impGo').textContent='Import'; $('impOv').classList.add('open'); notifyHeight(); };
+$('impCancel').onclick=closeAll;
+$('impFile').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f) return; $('impErr').textContent='';
+  if(!/\.csv$/i.test(f.name)){ $('impErr').textContent = /\.zip$/i.test(f.name) ? 'Unzip the Notion export first, then choose the CSV inside.' : 'Please choose a .csv file.'; return; }
+  if(f.size>5*1024*1024){ $('impErr').textContent='That file is larger than 5 MB.'; return; }
+  const csv=parseCSV(await f.text());
+  if(!csv.length || !('Course/Event' in csv[0])){ $('impErr').textContent='Could not find a "Course/Event" column. Is this the Notion event table export?'; return; }
+  imp=buildImportRows(csv,new Date()); imp.onlyGuess=false;
+  if(!imp.rows.length){ $('impErr').textContent='No importable rows found.'; $('impBody').innerHTML=''; return; }
+  renderImport();
+});
+$('impBody').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.inc!==undefined) imp.rows[+t.dataset.inc].include=t.checked;
+  else if(t.dataset.yr!==undefined){ const r=imp.rows[+t.dataset.yr]; r.year=+t.value; r.sure=true; }
+  else if(t.id==='impOnly') imp.onlyGuess=t.checked;
+  else return;
+  renderImport();
+});
+$('impBody').addEventListener('click',e=>{
+  const id=e.target.id;
+  if(id==='impBulk'){ const y=+$('impBulkY').value; imp.rows.forEach(r=>{ if(!r.sure){ r.year=y; r.sure=true; } }); renderImport(); }
+  if(id==='impAll'){ imp.rows.forEach(r=>{ r.include=true; }); renderImport(); }
+  if(id==='impNone'){ imp.rows.forEach(r=>{ r.include=false; }); renderImport(); }
+});
+$('impGo').onclick=async()=>{
+  const seen=new Set(events.map(x=>`${x.name.toLowerCase()}|${x.start}|${x.end}`)), recs=[]; let dups=0;
+  imp.rows.forEach((r,i)=>{
+    if(!r.include) return; const d=importDates(r); if(!d) return;
+    const key=`${r.name.toLowerCase()}|${d.start}|${d.end}`; if(seen.has(key)){ dups++; return; } seen.add(key);
+    recs.push({ id:uid()+i, name:r.name, company:r.company, start:d.start, end:d.end, type:r.type, location:r.location, reps:r.reps, contact:r.contact, url:r.url, files:[] });
+  });
+  if(!recs.length){ $('impErr').textContent = dups ? 'All selected events already exist.' : 'Nothing selected to import.'; return; }
+  $('impGo').disabled=true; $('impGo').textContent='Importing…'; $('impErr').textContent='';
+  try{ await backend.bulkSave(recs); closeAll(); alert(`Imported ${recs.length} event${recs.length===1?'':'s'}${dups?` (${dups} duplicates skipped)`:''}.`); }
+  catch(err){ $('impErr').textContent=(err&&err.message)||'Import failed. Nothing may have been saved; check and retry.'; $('impGo').disabled=false; renderImport(); }
+};
+
+/* ============ Wiring ============ */
+$('add').onclick=()=>openForm();
+$('auth').onclick=async()=>{
+  try{ backend.user() ? await backend.signOut() : await backend.signIn(); }
+  catch(err){ $('authMsg').textContent='Sign-in failed. Allow pop-ups for this site and try again.'; }
+};
+$('q').addEventListener('input',e=>{ st.q=e.target.value; render(); });
+$('fWhen').onchange=e=>{ st.when=e.target.value; render(); };
+$('fRep').onchange=e=>{ st.rep=e.target.value; render(); };
+$('fCompany').onchange=e=>{ st.company=e.target.value; render(); };
+$('fLoc').onchange=e=>{ st.loc=e.target.value; render(); };
+$('fMonth').onchange=e=>{ st.month=e.target.value; if(st.month){ st.calY=+st.month.slice(0,4); st.calM=+st.month.slice(5)-1; } render(); };
+$('pills').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const t=b.dataset.t; st.types.has(t)?st.types.delete(t):st.types.add(t); b.classList.toggle('on'); render(); });
+$('clear').onclick=()=>{ Object.assign(st,{q:'',when:'upcoming',rep:'',company:'',loc:'',month:''}); st.types.clear(); $('q').value=''; renderFilterControls(); render(); };
+$('views').addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if(!b) return; st.view=b.dataset.v; [...$('views').children].forEach(x=>x.classList.toggle('on',x===b)); render(); });
+$('out').addEventListener('click',e=>{
+  const nav=e.target.closest('[data-nav]');
+  if(nav){ const n=+nav.dataset.nav; if(n===0){ const d=new Date(); st.calY=d.getFullYear(); st.calM=d.getMonth(); } else { const d=new Date(st.calY,st.calM+n,1); st.calY=d.getFullYear(); st.calM=d.getMonth(); } render(); return; }
+  const el=e.target.closest('[data-id]'); if(el) openDetail(el.dataset.id);
+});
+
+/* Auto-resize when embedded (Foleon / any iframe host) */
+function notifyHeight(){
+  if(window.parent===window) return;
+  requestAnimationFrame(()=>{ const h=Math.max(document.documentElement.scrollHeight, ['formOv','detOv','impOv'].some(i=>$(i).classList.contains('open'))?760:0);
+    window.parent.postMessage({type:'acteon-events-height',height:h},'*'); });
+}
+new ResizeObserver(notifyHeight).observe(document.body);
+
+(async function boot(){
+  $('fileHint').textContent = `PDF, Office, CSV, TXT or images · up to ${fmtSize(MAX_FILE)} each · max ${MAX_FILES} files`;
+  if(FB_CFG){
+    try{ backend = await bootFirebase(FB_CFG); }
+    catch(e){ console.error('Firebase failed to start', e); $('count').textContent='Could not connect to the events database.'; loaded=true; return; }
+  } else { loaded = true; }
+  updateAuthUI();
+  await backend.init(list=>{ events=list; loaded=true; renderFilterControls(); render(); });
+})();
+</script>
+</body>
+</html>
