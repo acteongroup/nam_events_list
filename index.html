@@ -145,12 +145,65 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 .imptable td select{padding:4px 6px;border:1px solid var(--line);border-radius:6px}
 .guess{display:inline-block;background:#FFF1D6;color:#8A5300;font-size:11px;font-weight:600;border-radius:5px;padding:2px 6px;white-space:nowrap}
 .err{color:#B42318;font-size:13px;margin-top:10px;min-height:16px}
+/* ---- v2: grouped lists, softer rows, drawer, states ---- */
+.grp{display:flex;align-items:baseline;gap:8px;margin:24px 4px 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.grp:first-child{margin-top:6px}
+.grp .n{font-weight:500;letter-spacing:0;text-transform:none;opacity:.75}
+.grp.now,.grp.week{color:#04566B}
+.list{box-shadow:none}
+.row{padding:16px 20px;transition:background .12s,box-shadow .12s}
+.row:hover{background:#F7FBFD;box-shadow:inset 3px 0 0 var(--acc,var(--cyan))}
+.row.head:hover{box-shadow:none}
+.tag{border-radius:999px;font-size:11.5px;padding:3px 10px}
+.soon{display:inline-block;margin-left:8px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--cyan-soft);color:#04566B;vertical-align:2px;white-space:nowrap}
+.soon.now{background:#E3F5E5;color:#1E6B2B}
+.soon.today{background:#FFF1D6;color:#8A5300}
+.warns{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.warn{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:#FFF1D6;color:#8A5300}
+.rep.more{background:#EEF3F6;color:var(--muted);padding:3px 9px;cursor:default}
+.ctop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ctop .soon{margin:0}
+.skb{background:linear-gradient(90deg,#EEF3F6 25%,#F7FAFB 37%,#EEF3F6 63%);background-size:400% 100%;animation:sk 1.3s infinite;border-radius:6px}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.row.sk{cursor:default}.row.sk:hover{background:none;box-shadow:none}
+.empty{padding:56px 16px}
+.empty svg{width:40px;height:40px;stroke:#9FB3BD;fill:none;stroke-width:1.6;margin-bottom:8px}
+.empty h3{margin:0 0 4px;font-size:16px;color:var(--ink)}
+.empty p{margin:0 0 16px;font-size:14px}
+/* detail drawer */
+#detOv{background:rgba(14,42,58,.3);justify-content:flex-end;align-items:stretch;padding:0}
+#detOv .modal.detail{max-width:500px;min-height:100%;border-radius:18px 0 0 18px;padding:18px 24px 28px;overflow:auto;animation:slidein .22s ease-out}
+@keyframes slidein{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.dhead{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
+.dnav{display:flex;align-items:center;gap:6px}
+.dnav button,.dx{border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;font-size:18px;line-height:1;cursor:pointer;color:var(--navy)}
+.dnav button:hover,.dx:hover{background:#F3F8FA}
+.dpos{font-size:12px;color:var(--muted);margin-left:4px}
 @media(max-width:780px){
-  .row{grid-template-columns:70px 1fr;gap:6px 12px}
+  .app{padding:12px}
+  .bar{gap:8px}
+  .search{flex:1 1 100%}
+  .seg{flex:1}.seg button{flex:1;justify-content:center;min-height:42px}
+  .btn{min-height:44px}
+  .fbtn{min-height:42px;padding:8px 13px}
+  .seg.sm{flex:0 0 auto}.seg.sm button{flex:0 0 auto;min-height:36px}
+  input,select,textarea{font-size:16px}
+  .row{grid-template-columns:64px 1fr;gap:6px 12px;padding:14px}
   .row.head{display:none}
   .row>:nth-child(n+3){grid-column:2}
+  .grid{grid-template-columns:1fr}
+  .popmenu{position:fixed;left:8px;right:8px;bottom:8px;top:auto;border-radius:16px;max-height:70vh;overflow:auto;z-index:30;box-shadow:0 -8px 40px rgba(14,42,58,.3);padding:12px}
+  .popmenu .opt{padding:13px 10px;font-size:15px}
+  .popmenu.form select{min-height:44px}
+  body.sheet-open::before{content:'';position:fixed;inset:0;background:rgba(14,42,58,.4);z-index:20}
   .day{min-height:70px;padding:3px}.chip{font-size:10px;padding:2px 3px}
   .two{grid-template-columns:1fr}
+  .modal{padding:20px 16px}
+  .prodrow{grid-template-columns:1fr 70px 36px}
+  .dnav button,.dx{width:40px;height:40px}
+  #detOv{align-items:flex-end;justify-content:center}
+  #detOv .modal.detail{max-width:none;min-height:0;max-height:88vh;border-radius:18px 18px 0 0;padding:14px 18px 24px;animation:slideup .22s ease-out}
 }
 </style>
 </head>
@@ -189,6 +242,7 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
         <label>Month<select id="fMonth"></select></label>
       </div>
     </div>
+    <button type="button" class="fbtn" id="attnBtn" style="display:none" aria-pressed="false" title="Upcoming events missing reps, contact or products">Needs attention<span class="badge" id="attnBadge"></span></button>
     <button class="link" id="clear">Clear filters</button>
   </div>
   <div class="active" id="activeChips"></div>
@@ -378,6 +432,8 @@ function updateAuthUI(){
   $('add').style.display = backend.canEdit() ? '' : 'none';
   $('imp').style.display = backend.canEdit() ? '' : 'none';
   $('foot').style.display = fb ? '' : 'none';
+  $('attnBtn').style.display = backend.canEdit() ? '' : 'none';
+  if(!backend.canEdit() && st.attn){ st.attn=false; render(); }
   $('adminLink').textContent = backend.canEdit() ? 'Admin sign out' : 'Admin';
 }
 
@@ -403,7 +459,7 @@ const todayISO = () => iso(new Date());
 const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ============ State ============ */
-const st = { view:'list', q:'', when:'upcoming', rep:'', company:'', loc:'', month:'', types:new Set(), calY:new Date().getFullYear(), calM:new Date().getMonth() };
+const st = { view:'list', q:'', when:'upcoming', rep:'', company:'', loc:'', month:'', types:new Set(), attn:false, calY:new Date().getFullYear(), calM:new Date().getMonth() };
 let editingId = null, formReps = [], formFiles = [], formProds = [];
 const MAX_FILE = (FB_CFG ? 10 : 1.5)*1024*1024, MAX_FILES = 5;
 const OK_EXT = ['pdf','doc','docx','xls','xlsx','ppt','pptx','csv','txt','png','jpg','jpeg'];
@@ -424,6 +480,7 @@ function filtered(ignoreWhen){
       if(st.when==='upcoming' && e.end < t) return false;
       if(st.when==='past' && e.end >= t) return false;
     }
+    if(st.attn && (e.end<t || !needsAttn(e).length)) return false;
     if(st.types.size && !st.types.has(e.type)) return false;
     if(st.rep && !e.reps.includes(st.rep)) return false;
     if(st.company && e.company!==st.company) return false;
@@ -461,33 +518,40 @@ function renderFilterState(){
   if(st.company) chips.push(['company',st.company,st.company]);
   if(st.loc) chips.push(['loc',st.loc,st.loc]);
   if(st.month) chips.push(['month',st.month,`${MONL[+st.month.slice(5)-1]} ${st.month.slice(0,4)}`]);
+  if(st.attn) chips.push(['attn','1','Needs attention']);
   $('activeChips').innerHTML=chips.map(([k,v,l])=>`<span class="achip">${esc(l)}<button type="button" data-ck="${k}" data-cv="${esc(v)}" aria-label="Remove filter ${esc(l)}">×</button></span>`).join('');
+  const today=todayISO(), nA=events.filter(e=>e.end>=today && needsAttn(e).length).length;
+  $('attnBadge').textContent=nA||''; $('attnBtn').classList.toggle('active',st.attn); $('attnBtn').setAttribute('aria-pressed',String(st.attn));
   $('clear').style.display=(chips.length||st.q||st.when!=='upcoming')?'':'none';
 }
 
 /* ============ Views ============ */
 function render(){
   renderFilterState();
-  if(!loaded){ $('out').innerHTML='<div class="empty">Loading events…</div>'; return; }
+  if(!loaded){ $('out').innerHTML=skeleton(); return; }
   const list = filtered();
   $('count').textContent = st.view==='calendar' ? '' : `${list.length} event${list.length===1?'':'s'}`;
   const out=$('out');
   if(st.view==='calendar'){ out.innerHTML = calendarHTML(); }
-  else if(!list.length){ out.innerHTML = '<div class="empty">No events match your filters.</div>'; }
+  else if(!list.length){ out.innerHTML = emptyHTML(); }
   else if(st.view==='list'){ out.innerHTML = listHTML(list); }
   else { out.innerHTML = gridHTML(list); }
   notifyHeight();
 }
-function listHTML(list){
-  return `<div class="list"><div class="row head"><div>Date</div><div>Event</div><div>Type</div><div>Location</div><div>Acteon reps</div></div>` +
-  list.map(e=>{ const s=pd(e.start); return `
-    <div class="row" data-id="${esc(e.id)}" tabindex="0">
+function rowHTML(e){
+  const s=pd(e.start), c=COLORS[e.type]||COLORS.Other;
+  return `
+    <div class="row" data-id="${esc(e.id)}" tabindex="0" style="--acc:${c[1]}">
       <div class="datebox"><span>${MON[s.getMonth()]}</span><b>${s.getDate()}</b><span>${fmtRange(e.start,e.end).includes('–')?'multi-day':s.getFullYear()}</span></div>
-      <div><div class="name">${esc(e.name)}</div><div class="sub">${esc([e.company,fmtRange(e.start,e.end)].filter(Boolean).join(' · '))}</div>${prodsHTML(e)}</div>
+      <div><div class="name">${esc(e.name)}${soonTag(e)}</div><div class="sub">${esc([e.company,fmtRange(e.start,e.end)].filter(Boolean).join(' · '))}</div>${prodsHTML(e)}${st.attn?attnTags(e):''}</div>
       <div>${typeTag(e.type)}</div>
       <div class="loc">${esc(e.location)}${mapLink(e.location)}</div>
-      <div class="reps">${e.reps.length? e.reps.map(repChip).join('') : '<span class="muted">—</span>'}</div>
-    </div>`; }).join('') + `</div>`;
+      <div class="reps">${e.reps.length? repChips(e.reps,3) : '<span class="muted">—</span>'}</div>
+    </div>`;
+}
+function listHTML(list){
+  const head='<div class="row head"><div>Date</div><div>Event</div><div>Type</div><div>Location</div><div>Acteon reps</div></div>';
+  return groupEvents(list).map((g,i)=>`<div class="grp ${g.cls}">${esc(g.label)}<span class="n">${g.items.length}</span></div><div class="list">${i===0?head:''}${g.items.map(rowHTML).join('')}</div>`).join('');
 }
 const ico = {
   pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
@@ -500,11 +564,38 @@ const ico = {
 const looksLikeAddress = s => /\b\d{1,6}\s+[A-Za-z0-9]/.test(s||'') && (s||'').includes(',');
 const mapLink = s => looksLikeAddress(s) ? `<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s)}" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">${ico.pin}Map</a>` : '';
 const prodText = p => `${p.qty?p.qty+' × ':''}${p.name}`;
+/*UI-HELPERS-START*/
+const needsAttn = e => [ !(e.reps||[]).length && 'No reps', !((e.contact||{}).name) && 'No contact', !(e.products||[]).length && 'No products' ].filter(Boolean);
+const attnTags = e => needsAttn(e).length ? `<div class="warns">${needsAttn(e).map(w=>`<span class="warn">${w}</span>`).join('')}</div>` : '';
+function soonTag(e){
+  const t=todayISO(); if(e.end<t) return '';
+  if(e.start===t) return '<span class="soon today">Today</span>';
+  if(e.start<t) return '<span class="soon now">Happening now</span>';
+  const d=Math.round((pd(e.start)-pd(t))/864e5);
+  if(d===1) return '<span class="soon today">Tomorrow</span>';
+  return d<=14 ? `<span class="soon">In ${d} days</span>` : '';
+}
+function groupEvents(list){
+  const t=todayISO(), d0=pd(t), wk=iso(new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+7));
+  const groups=[], byKey={};
+  list.forEach(e=>{
+    let key,label,cls='';
+    if(e.start<=t && e.end>=t){ key='now'; label='Happening now'; cls='now'; }
+    else if(e.start>t && e.start<=wk){ key='week'; label='This week'; cls='week'; }
+    else { key=e.start.slice(0,7); label=`${MONL[+key.slice(5)-1]} ${key.slice(0,4)}`; }
+    if(!byKey[key]){ byKey[key]={label,cls,items:[]}; groups.push(byKey[key]); }
+    byKey[key].items.push(e);
+  });
+  return groups;
+}
+const repChips = (reps,max) => reps.slice(0,max).map(repChip).join('') + (reps.length>max ? `<span class="rep more" title="${esc(reps.slice(max).join(', '))}">+${reps.length-max}</span>` : '');
+/*UI-HELPERS-END*/
 const prodsHTML = e => (e.products||[]).length ? `<div class="prods">${ico.box}<span>${esc(e.products.map(prodText).join(' · '))}</span></div>` : '';
-function gridHTML(list){
-  return `<div class="grid">` + list.map(e=>{ const c=COLORS[e.type]||COLORS.Other; return `
+function cardHTML(e){
+  const c=COLORS[e.type]||COLORS.Other;
+  return `
     <div class="card" data-id="${esc(e.id)}" tabindex="0" style="border-top-color:${c[1]}">
-      <div>${typeTag(e.type)}</div>
+      <div class="ctop">${typeTag(e.type)}${soonTag(e)}</div>
       <h3>${esc(e.name)}</h3>
       ${e.company?`<div class="meta">${ico.bld}<span>${esc(e.company)}</span></div>`:''}
       <div class="meta">${ico.cal}<span>${esc(fmtRange(e.start,e.end))}</span></div>
@@ -512,8 +603,22 @@ function gridHTML(list){
       ${e.contact.name?`<div class="meta">${ico.user}<span>${esc(e.contact.name)}</span></div>`:''}
       ${(e.files||[]).length?`<div class="meta"><svg viewBox="0 0 24 24"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 5 5L10.5 19a1.7 1.7 0 0 1-2.5-2.5L16 8.5"/></svg><span>${e.files.length} document${e.files.length>1?'s':''}</span></div>`:''}
       ${prodsHTML(e)}
-      <div class="reps">${e.reps.map(repChip).join('')}</div>
-    </div>`; }).join('') + `</div>`;
+      ${st.attn?attnTags(e):''}
+      <div class="reps">${repChips(e.reps,3)}</div>
+    </div>`;
+}
+function skeleton(){
+  const row='<div class="row sk"><div class="skb" style="width:48px;height:44px"></div><div><div class="skb" style="width:70%;height:14px"></div><div class="skb" style="width:45%;height:11px;margin-top:8px"></div></div><div class="skb" style="width:84px;height:20px"></div><div class="skb" style="width:75%;height:12px"></div><div class="skb" style="width:60%;height:20px"></div></div>';
+  return `<div class="list" aria-busy="true" aria-label="Loading events">${row.repeat(5)}</div>`;
+}
+function emptyHTML(){
+  const icon='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9.5 14.5l5 5M14.5 14.5l-5 5"/></svg>';
+  if(!events.length) return `<div class="empty">${icon}<h3>No events yet</h3><p>${backend.canEdit()?'Add your first event or import a Notion CSV.':'Events will appear here once they are added.'}</p>${backend.canEdit()?'<button class="btn" data-empty="add">+ New event</button>':''}</div>`;
+  if(st.attn) return `<div class="empty">${icon}<h3>All caught up</h3><p>Every upcoming event has reps, a contact and products.</p><button class="btn ghost" data-empty="clear">Clear filters</button></div>`;
+  return `<div class="empty">${icon}<h3>No events match</h3><p>Try removing a filter or searching for something else.</p><button class="btn ghost" data-empty="clear">Clear filters</button></div>`;
+}
+function gridHTML(list){
+  return groupEvents(list).map(g=>`<div class="grp ${g.cls}">${esc(g.label)}<span class="n">${g.items.length}</span></div><div class="grid">${g.items.map(cardHTML).join('')}</div>`).join('');
 }
 function calendarHTML(){
   const list=filtered(true).filter(e=>true);
@@ -531,11 +636,16 @@ function calendarHTML(){
 }
 
 /* ============ Detail modal ============ */
+let detNav = { ids:[], i:-1 };
+function navDetail(d){ const j=detNav.i+d; if(j>=0 && j<detNav.ids.length) openDetail(detNav.ids[j]); }
 function openDetail(id){
   const e=events.find(x=>x.id===id); if(!e) return;
   const c=e.contact, mail = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(c.email||'');
+  const ids=(st.view==='calendar' ? filtered(true) : filtered()).map(x=>x.id); detNav={ ids, i:ids.indexOf(id) };
+  const nav = detNav.i>=0 ? `<div class="dnav"><button type="button" data-act="prev" aria-label="Previous event"${detNav.i===0?' disabled':''}>‹</button><button type="button" data-act="next" aria-label="Next event"${detNav.i===ids.length-1?' disabled':''}>›</button><span class="dpos">${detNav.i+1} of ${ids.length}</span></div>` : '<div></div>';
   $('det').innerHTML = `
-    <div>${typeTag(e.type)}</div>
+    <div class="dhead">${nav}<button type="button" class="dx" data-act="close" aria-label="Close">×</button></div>
+    <div class="ctop" style="justify-content:flex-start;gap:8px">${typeTag(e.type)}${soonTag(e)}</div>
     <h2 style="margin-top:10px">${esc(e.name)}</h2>
     ${e.company?`<div class="sub">${esc(e.company)}</div>`:''}
     <dl>
@@ -544,7 +654,7 @@ function openDetail(id){
       <dt>Acteon reps</dt><dd class="reps">${e.reps.length?e.reps.map(repChip).join(''):'<span class="muted">None assigned</span>'}</dd>
       ${(e.products||[]).length?`<dt>Products needed</dt><dd><ul class="plist">${e.products.map(p=>`<li>${esc(prodText(p))}</li>`).join('')}</ul></dd>`:''}
       ${safeUrl(e.url||'')?`<dt>Event URL</dt><dd><a href="${esc(safeUrl(e.url))}" target="_blank" rel="noopener noreferrer">${esc(safeUrl(e.url).replace(/^https?:\/\//,'').replace(/\/$/,''))}</a></dd>`:''}
-      ${(e.files||[]).length?`<dt>Documents</dt><dd class="files">${e.files.map((f,i)=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="sz">${fmtSize(f.size)}</span>${f.url&&safeUrl(f.url)?`<a href="${esc(safeUrl(f.url))}" target="_blank" rel="noopener noreferrer">Download</a>`:`<button type="button" data-dl="${i}" data-id="${esc(e.id)}">Download</button>`}</div>`).join('')}</dd>`:''}
+      ${(e.files||[]).length?`<dt>Documents</dt><dd class="files">${e.files.map((f,i)=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="sz">${fmtSize(f.size)}</span>${f.url&&safeUrl(f.url)?`<a href="${esc(safeUrl(f.url))}" target="_blank" rel="noopener noreferrer">Download</a>`:`<button type="button" data-dl="${i}" data-id="${esc(id)}">Download</button>`}</div>`).join('')}</dd>`:''}
       <dt>Event contact</dt><dd>${esc(c.name)}${mail?`<br><a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:''}${c.phone?`<br>${esc(c.phone)}`:''}</dd>
     </dl>
     <div class="actions">
@@ -628,12 +738,14 @@ $('form').addEventListener('submit',async ev=>{
 function closeAll(){ ['formOv','detOv','impOv','admOv'].forEach(i=>$(i).classList.remove('open')); notifyHeight(); }
 $('cancel').onclick=closeAll;
 ['formOv','detOv','impOv','admOv'].forEach(id=>$(id).addEventListener('mousedown',e=>{ if(e.target.id===id) closeAll(); }));
+document.addEventListener('keydown',e=>{ if($('detOv').classList.contains('open') && !e.target.matches('input,textarea,select') && (e.key==='ArrowRight'||e.key==='ArrowLeft')) navDetail(e.key==='ArrowRight'?1:-1); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeAll(); closePops(); } if((e.key==='Enter')&&e.target.matches('[data-id][tabindex]')) openDetail(e.target.dataset.id); });
 $('det').addEventListener('click',async e=>{
   const dl=e.target.closest('[data-dl]');
   if(dl){ const ev=events.find(x=>x.id===dl.dataset.id); const f=ev&&ev.files[+dl.dataset.dl]; if(f) downloadFile(f); return; }
   const b=e.target.closest('[data-act]'); if(!b) return;
   if(b.dataset.act==='close') closeAll();
+  if(b.dataset.act==='prev' || b.dataset.act==='next') navDetail(b.dataset.act==='next'?1:-1);
   if(b.dataset.act==='edit') openForm(b.dataset.id);
   if(b.dataset.act==='del' && confirm('Delete this event? This cannot be undone.')){
     try{ await backend.remove(events.find(x=>x.id===b.dataset.id)); closeAll(); }
@@ -803,21 +915,24 @@ $('admForm').onsubmit=async e=>{
 $('admCancel').onclick=closeAll;
 $('q').addEventListener('input',e=>{ st.q=e.target.value; render(); });
 $('whenSeg').addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; st.when=b.dataset.w; render(); });
-function closePops(except){ [['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ if(m!==except){ $(m).hidden=true; $(b).setAttribute('aria-expanded','false'); } }); }
-[['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ $(b).onclick=()=>{ closePops(m); $(m).hidden=!$(m).hidden; $(b).setAttribute('aria-expanded',String(!$(m).hidden)); }; });
+$('attnBtn').onclick=()=>{ st.attn=!st.attn; render(); };
+const syncSheet = () => document.body.classList.toggle('sheet-open', !$('typeMenu').hidden || !$('moreMenu').hidden);
+function closePops(except){ [['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ if(m!==except){ $(m).hidden=true; $(b).setAttribute('aria-expanded','false'); } }); syncSheet(); }
+[['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ $(b).onclick=()=>{ closePops(m); $(m).hidden=!$(m).hidden; $(b).setAttribute('aria-expanded',String(!$(m).hidden)); syncSheet(); }; });
 document.addEventListener('click',e=>{ if(!e.target.closest('.pop')) closePops(); });
 $('typeMenu').addEventListener('change',e=>{ const t=e.target.dataset.t; if(t===undefined) return; e.target.checked?st.types.add(t):st.types.delete(t); render(); });
-$('activeChips').addEventListener('click',e=>{ const b=e.target.closest('[data-ck]'); if(!b) return; const k=b.dataset.ck, v=b.dataset.cv; if(k==='type') st.types.delete(v); else st[k]=''; renderFilterControls(); render(); });
+$('activeChips').addEventListener('click',e=>{ const b=e.target.closest('[data-ck]'); if(!b) return; const k=b.dataset.ck, v=b.dataset.cv; if(k==='type') st.types.delete(v); else if(k==='attn') st.attn=false; else st[k]=''; renderFilterControls(); render(); });
 $('fRep').onchange=e=>{ st.rep=e.target.value; render(); };
 $('fCompany').onchange=e=>{ st.company=e.target.value; render(); };
 $('fLoc').onchange=e=>{ st.loc=e.target.value; render(); };
 $('fMonth').onchange=e=>{ st.month=e.target.value; if(st.month){ st.calY=+st.month.slice(0,4); st.calM=+st.month.slice(5)-1; } render(); };
-$('clear').onclick=()=>{ Object.assign(st,{q:'',when:'upcoming',rep:'',company:'',loc:'',month:''}); st.types.clear(); $('q').value=''; renderFilterControls(); render(); };
+$('clear').onclick=()=>{ Object.assign(st,{q:'',when:'upcoming',rep:'',company:'',loc:'',month:'',attn:false}); st.types.clear(); $('q').value=''; renderFilterControls(); render(); };
 $('views').addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if(!b) return; st.view=b.dataset.v; [...$('views').children].forEach(x=>x.classList.toggle('on',x===b)); render(); });
 $('out').addEventListener('click',e=>{
   const nav=e.target.closest('[data-nav]');
   if(nav){ const n=+nav.dataset.nav; if(n===0){ const d=new Date(); st.calY=d.getFullYear(); st.calM=d.getMonth(); } else { const d=new Date(st.calY,st.calM+n,1); st.calY=d.getFullYear(); st.calM=d.getMonth(); } render(); return; }
   if(e.target.closest('a')) return;
+  const eb=e.target.closest('[data-empty]'); if(eb){ eb.dataset.empty==='clear' ? $('clear').click() : openForm(); return; }
   const el=e.target.closest('[data-id]'); if(el) openDetail(el.dataset.id);
 });
 
