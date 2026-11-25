@@ -2,3 +2,6 @@
 *.env
 dist/
 node_modules/
+firebase-config.js
+index.local-backup.html
+import-events.csv
