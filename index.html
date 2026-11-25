@@ -33,9 +33,27 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 6px}
 .filters select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;max-width:200px}
-.pills{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
-.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted)}
-.pill.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.seg.sm button{padding:5px 11px;font-size:13px}
+.pop{position:relative}
+.fbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 11px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
+.fbtn:hover{border-color:#C9D6DD}
+.fbtn.active{border-color:var(--cyan);background:var(--cyan-soft);color:#04566B}
+.fbtn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4}
+.badge{background:var(--navy);color:#fff;border-radius:999px;font-size:11px;font-weight:600;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 5px}
+.badge:empty{display:none}
+.popmenu{position:absolute;top:calc(100% + 6px);left:0;z-index:5;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(14,42,58,.16);padding:8px;min-width:230px}
+.popmenu[hidden]{display:none}
+.popmenu .opt{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;font-size:13px;cursor:pointer}
+.popmenu .opt:hover{background:#F3F8FA}
+.popmenu .opt i{width:9px;height:9px;border-radius:50%;flex:none}
+.popmenu .opt input{accent-color:var(--navy);margin:0}
+.popmenu.form{padding:12px;min-width:260px;display:grid;gap:10px}
+.popmenu.form label{display:grid;gap:4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.popmenu.form select{max-width:none;width:100%;text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--ink)}
+.active{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.active:empty{display:none}
+.achip{display:inline-flex;align-items:center;gap:4px;background:var(--cyan-soft);color:#04566B;border-radius:999px;padding:3px 4px 3px 10px;font-size:12px;font-weight:500}
+.achip button{border:0;background:none;color:#04566B;cursor:pointer;font-size:14px;line-height:1;padding:0 5px}
 .count{color:var(--muted);font-size:13px;margin:0 0 10px}
 .link{background:none;border:0;color:var(--cyan);cursor:pointer;font-weight:600;padding:4px 6px}
 /* tags */
@@ -63,6 +81,19 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 .card:hover{transform:translateY(-2px)}
 .card h3{margin:0;font-size:16px;line-height:1.3}
 .meta{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted)}
+.card .meta{font-size:12.5px}
+.loc{font-size:12.5px;line-height:1.4;color:#3B5461}
+.maplink{display:flex;align-items:center;gap:4px;margin-top:3px;font-size:11.5px;font-weight:600;color:#0089AB;text-decoration:none;width:fit-content}
+.maplink:hover{text-decoration:underline}
+.maplink svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.prods{display:flex;gap:5px;align-items:flex-start;font-size:11.5px;line-height:1.35;color:var(--muted);margin-top:5px}
+.prods svg{flex:none;width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;margin-top:1px}
+.prods span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.plist{margin:0;padding-left:18px}
+.prodrow{display:grid;grid-template-columns:1fr 84px 30px;gap:8px;margin-bottom:6px}
+.prodrow input{padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;width:100%}
+.prodrow input:focus{outline:2px solid var(--cyan);outline-offset:-1px}
+.prodrow .rm{border:0;background:none;color:#B42318;font-size:18px;cursor:pointer}
 .meta svg{flex:none;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;margin-top:2px}
 /* calendar */
 .cal{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
@@ -140,14 +171,27 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
   </div>
 
   <div class="filters">
-    <select id="fWhen" aria-label="When"><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="all">All dates</option></select>
-    <select id="fRep" aria-label="Acteon rep"></select>
-    <select id="fCompany" aria-label="Company"></select>
-    <select id="fLoc" aria-label="Location"></select>
-    <select id="fMonth" aria-label="Month"></select>
+    <div class="seg sm" id="whenSeg" aria-label="When">
+      <button type="button" data-w="upcoming" class="on">Upcoming</button>
+      <button type="button" data-w="past">Past</button>
+      <button type="button" data-w="all">All</button>
+    </div>
+    <div class="pop">
+      <button type="button" class="fbtn" id="typeBtn" aria-haspopup="true" aria-expanded="false">Event type<span class="badge" id="typeBadge"></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="popmenu" id="typeMenu" hidden></div>
+    </div>
+    <div class="pop">
+      <button type="button" class="fbtn" id="moreBtn" aria-haspopup="true" aria-expanded="false">Filters<span class="badge" id="moreBadge"></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="popmenu form" id="moreMenu" hidden>
+        <label>Acteon rep<select id="fRep"></select></label>
+        <label>Company<select id="fCompany"></select></label>
+        <label>Location<select id="fLoc"></select></label>
+        <label>Month<select id="fMonth"></select></label>
+      </div>
+    </div>
     <button class="link" id="clear">Clear filters</button>
   </div>
-  <div class="pills" id="pills" aria-label="Event type"></div>
+  <div class="active" id="activeChips"></div>
   <p class="count" id="count"></p>
   <div id="out"></div>
 </div>
@@ -170,6 +214,10 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
     <div class="chips" id="repChips"></div>
     <input id="fRepIn" list="repList" placeholder="Type a name and press Enter">
     <datalist id="repList"></datalist>
+  </div>
+  <div class="field"><label>Products needed</label>
+    <div id="prodRows"></div>
+    <button type="button" class="link" id="addProd" style="align-self:flex-start;padding-left:0">+ Add product</button>
   </div>
   <div class="field"><label for="fCName">Event contact *</label><input id="fCName" maxlength="120" placeholder="Contact name" required></div>
   <div class="two">
@@ -277,7 +325,7 @@ async function bootFirebase(cfg){
       updateAuthUI();
     });
   }
-  const norm = (id,d) => ({ reps:[], files:[], url:'', contact:{name:'',email:'',phone:''}, ...d, id });
+  const norm = (id,d) => ({ reps:[], files:[], products:[], url:'', contact:{name:'',email:'',phone:''}, ...d, id });
   return {
     canEdit: () => canEditNow, user: () => user,
     // Shared admin password: the password is only ever checked by the Firestore security rules.
@@ -356,7 +404,7 @@ const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).sli
 
 /* ============ State ============ */
 const st = { view:'list', q:'', when:'upcoming', rep:'', company:'', loc:'', month:'', types:new Set(), calY:new Date().getFullYear(), calM:new Date().getMonth() };
-let editingId = null, formReps = [], formFiles = [];
+let editingId = null, formReps = [], formFiles = [], formProds = [];
 const MAX_FILE = (FB_CFG ? 10 : 1.5)*1024*1024, MAX_FILES = 5;
 const OK_EXT = ['pdf','doc','docx','xls','xlsx','ppt','pptx','csv','txt','png','jpg','jpeg'];
 const safeUrl = u => { try{ const x=new URL(u); return (x.protocol==='https:'||x.protocol==='http:') ? x.href : ''; }catch(e){ return ''; } };
@@ -381,7 +429,7 @@ function filtered(ignoreWhen){
     if(st.company && e.company!==st.company) return false;
     if(st.loc && e.location!==st.loc) return false;
     if(st.month && !(e.start.slice(0,7)<=st.month && e.end.slice(0,7)>=st.month)) return false;
-    if(q && ![e.name,e.company,e.location,e.type,e.contact.name,...e.reps].join(' ').toLowerCase().includes(q)) return false;
+    if(q && ![e.name,e.company,e.location,e.type,e.contact.name,...e.reps,...(e.products||[]).map(p=>p.name)].join(' ').toLowerCase().includes(q)) return false;
     return true;
   }).sort((a,b)=> st.when==='past' ? b.start.localeCompare(a.start) : a.start.localeCompare(b.start));
 }
@@ -400,12 +448,26 @@ function renderFilterControls(){
   events.forEach(e=>{ let d=pd(e.start); const end=pd(e.end); d=new Date(d.getFullYear(),d.getMonth(),1);
     while(d<=end){ months.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); d=new Date(d.getFullYear(),d.getMonth()+1,1);} });
   fillSelect('fMonth','Any month',[...months].sort().map(m=>({v:m,l:`${MONL[+m.slice(5)-1]} ${m.slice(0,4)}`})),st.month);
-  $('fWhen').value=st.when;
-  $('pills').innerHTML = TYPES.map(t=>`<button type="button" class="pill${st.types.has(t)?' on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('');
+  $('typeMenu').innerHTML = TYPES.map(t=>{ const c=COLORS[t]||COLORS.Other; return `<label class="opt"><input type="checkbox" data-t="${esc(t)}"${st.types.has(t)?' checked':''}><i style="background:${c[1]}"></i>${esc(t)}</label>`; }).join('');
+  renderFilterState();
+}
+function renderFilterState(){
+  [...$('whenSeg').children].forEach(b=>b.classList.toggle('on',b.dataset.w===st.when));
+  const nT=st.types.size, nM=[st.rep,st.company,st.loc,st.month].filter(Boolean).length;
+  $('typeBadge').textContent=nT||''; $('moreBadge').textContent=nM||'';
+  $('typeBtn').classList.toggle('active',nT>0); $('moreBtn').classList.toggle('active',nM>0);
+  const chips=[...st.types].map(t=>['type',t,t]);
+  if(st.rep) chips.push(['rep',st.rep,st.rep]);
+  if(st.company) chips.push(['company',st.company,st.company]);
+  if(st.loc) chips.push(['loc',st.loc,st.loc]);
+  if(st.month) chips.push(['month',st.month,`${MONL[+st.month.slice(5)-1]} ${st.month.slice(0,4)}`]);
+  $('activeChips').innerHTML=chips.map(([k,v,l])=>`<span class="achip">${esc(l)}<button type="button" data-ck="${k}" data-cv="${esc(v)}" aria-label="Remove filter ${esc(l)}">×</button></span>`).join('');
+  $('clear').style.display=(chips.length||st.q||st.when!=='upcoming')?'':'none';
 }
 
 /* ============ Views ============ */
 function render(){
+  renderFilterState();
   if(!loaded){ $('out').innerHTML='<div class="empty">Loading events…</div>'; return; }
   const list = filtered();
   $('count').textContent = st.view==='calendar' ? '' : `${list.length} event${list.length===1?'':'s'}`;
@@ -421,9 +483,9 @@ function listHTML(list){
   list.map(e=>{ const s=pd(e.start); return `
     <div class="row" data-id="${esc(e.id)}" tabindex="0">
       <div class="datebox"><span>${MON[s.getMonth()]}</span><b>${s.getDate()}</b><span>${fmtRange(e.start,e.end).includes('–')?'multi-day':s.getFullYear()}</span></div>
-      <div><div class="name">${esc(e.name)}</div><div class="sub">${esc([e.company,fmtRange(e.start,e.end)].filter(Boolean).join(' · '))}</div></div>
+      <div><div class="name">${esc(e.name)}</div><div class="sub">${esc([e.company,fmtRange(e.start,e.end)].filter(Boolean).join(' · '))}</div>${prodsHTML(e)}</div>
       <div>${typeTag(e.type)}</div>
-      <div>${esc(e.location)}</div>
+      <div class="loc">${esc(e.location)}${mapLink(e.location)}</div>
       <div class="reps">${e.reps.length? e.reps.map(repChip).join('') : '<span class="muted">—</span>'}</div>
     </div>`; }).join('') + `</div>`;
 }
@@ -431,8 +493,14 @@ const ico = {
   pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
   cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
   user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
-  bld:'<svg viewBox="0 0 24 24"><path d="M4 21V4h10v17M14 9h6v12M8 8h2M8 12h2M8 16h2"/></svg>'
+  bld:'<svg viewBox="0 0 24 24"><path d="M4 21V4h10v17M14 9h6v12M8 8h2M8 12h2M8 16h2"/></svg>',
+  box:'<svg viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5V8zM3 8l9 5 9-5M12 13v8"/></svg>'
 };
+// A map link is shown only for full street addresses (a number plus a comma), not "Phoenix" or "Orlando, FL".
+const looksLikeAddress = s => /\b\d{1,6}\s+[A-Za-z0-9]/.test(s||'') && (s||'').includes(',');
+const mapLink = s => looksLikeAddress(s) ? `<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s)}" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">${ico.pin}Map</a>` : '';
+const prodText = p => `${p.qty?p.qty+' × ':''}${p.name}`;
+const prodsHTML = e => (e.products||[]).length ? `<div class="prods">${ico.box}<span>${esc(e.products.map(prodText).join(' · '))}</span></div>` : '';
 function gridHTML(list){
   return `<div class="grid">` + list.map(e=>{ const c=COLORS[e.type]||COLORS.Other; return `
     <div class="card" data-id="${esc(e.id)}" tabindex="0" style="border-top-color:${c[1]}">
@@ -440,9 +508,10 @@ function gridHTML(list){
       <h3>${esc(e.name)}</h3>
       ${e.company?`<div class="meta">${ico.bld}<span>${esc(e.company)}</span></div>`:''}
       <div class="meta">${ico.cal}<span>${esc(fmtRange(e.start,e.end))}</span></div>
-      ${e.location?`<div class="meta">${ico.pin}<span>${esc(e.location)}</span></div>`:''}
+      ${e.location?`<div class="meta">${ico.pin}<span>${esc(e.location)}${mapLink(e.location)}</span></div>`:''}
       ${e.contact.name?`<div class="meta">${ico.user}<span>${esc(e.contact.name)}</span></div>`:''}
       ${(e.files||[]).length?`<div class="meta"><svg viewBox="0 0 24 24"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 5 5L10.5 19a1.7 1.7 0 0 1-2.5-2.5L16 8.5"/></svg><span>${e.files.length} document${e.files.length>1?'s':''}</span></div>`:''}
+      ${prodsHTML(e)}
       <div class="reps">${e.reps.map(repChip).join('')}</div>
     </div>`; }).join('') + `</div>`;
 }
@@ -471,8 +540,9 @@ function openDetail(id){
     ${e.company?`<div class="sub">${esc(e.company)}</div>`:''}
     <dl>
       <dt>Dates</dt><dd>${esc(fmtRange(e.start,e.end))}</dd>
-      <dt>Location</dt><dd>${esc(e.location)}</dd>
+      <dt>Location</dt><dd>${esc(e.location)}${mapLink(e.location)}</dd>
       <dt>Acteon reps</dt><dd class="reps">${e.reps.length?e.reps.map(repChip).join(''):'<span class="muted">None assigned</span>'}</dd>
+      ${(e.products||[]).length?`<dt>Products needed</dt><dd><ul class="plist">${e.products.map(p=>`<li>${esc(prodText(p))}</li>`).join('')}</ul></dd>`:''}
       ${safeUrl(e.url||'')?`<dt>Event URL</dt><dd><a href="${esc(safeUrl(e.url))}" target="_blank" rel="noopener noreferrer">${esc(safeUrl(e.url).replace(/^https?:\/\//,'').replace(/\/$/,''))}</a></dd>`:''}
       ${(e.files||[]).length?`<dt>Documents</dt><dd class="files">${e.files.map((f,i)=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="sz">${fmtSize(f.size)}</span>${f.url&&safeUrl(f.url)?`<a href="${esc(safeUrl(f.url))}" target="_blank" rel="noopener noreferrer">Download</a>`:`<button type="button" data-dl="${i}" data-id="${esc(e.id)}">Download</button>`}</div>`).join('')}</dd>`:''}
       <dt>Event contact</dt><dd>${esc(c.name)}${mail?`<br><a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:''}${c.phone?`<br>${esc(c.phone)}`:''}</dd>
@@ -495,6 +565,7 @@ function openForm(id){
   $('fCName').value=e?.contact.name||''; $('fCEmail').value=e?.contact.email||''; $('fCPhone').value=e?.contact.phone||'';
   $('fUrl').value=e?.url||''; formFiles=[...(e?.files||[])]; $('fFile').value=''; renderFileList();
   formReps=[...(e?.reps||[])]; renderRepChips(); $('err').textContent='';
+  formProds=(e?.products||[]).map(p=>({name:p.name||'',qty:p.qty||''})); if(!formProds.length) formProds.push({name:'',qty:''}); renderProdRows();
   $('repList').innerHTML=[...new Set(events.flatMap(x=>x.reps))].sort().map(r=>`<option value="${esc(r)}">`).join('');
   $('detOv').classList.remove('open'); $('formOv').classList.add('open'); $('fName').focus();
 }
@@ -514,6 +585,14 @@ $('fFile').addEventListener('change',async e=>{
   }
   e.target.value=''; renderFileList(); $('err').textContent=errs.join(' · ');
 });
+function renderProdRows(){
+  $('prodRows').innerHTML=formProds.map((p,i)=>`<div class="prodrow"><input data-pn="${i}" maxlength="80" placeholder="Product" aria-label="Product" value="${esc(p.name)}"><input data-pq="${i}" type="number" min="1" max="9999" inputmode="numeric" placeholder="Qty" aria-label="Quantity" value="${esc(p.qty)}"><button type="button" class="rm" data-pr="${i}" aria-label="Remove product">×</button></div>`).join('');
+}
+function addProdRow(){ formProds.push({name:'',qty:''}); renderProdRows(); const r=$('prodRows').querySelectorAll('.prodrow'); r[r.length-1].querySelector('input').focus(); }
+$('prodRows').addEventListener('input',e=>{ const t=e.target; if(t.dataset.pn!==undefined) formProds[+t.dataset.pn].name=t.value; else if(t.dataset.pq!==undefined) formProds[+t.dataset.pq].qty=t.value; });
+$('prodRows').addEventListener('click',e=>{ const b=e.target.closest('[data-pr]'); if(b){ formProds.splice(+b.dataset.pr,1); if(!formProds.length) formProds.push({name:'',qty:''}); renderProdRows(); } });
+$('prodRows').addEventListener('keydown',e=>{ if(e.key==='Enter' && e.target.matches('input')){ e.preventDefault(); addProdRow(); } });
+$('addProd').onclick=addProdRow;
 function renderRepChips(){
   $('repChips').innerHTML=formReps.map((r,i)=>`<span class="rep"><i>${esc(initials(r))}</i>${esc(r)}<button type="button" data-rm="${i}" aria-label="Remove ${esc(r)}">×</button></span>`).join('');
 }
@@ -529,7 +608,8 @@ $('form').addEventListener('submit',async ev=>{
   ev.preventDefault(); addRep();
   const v=id=>$(id).value.trim();
   const rec={ id:editingId||uid(), name:v('fName'), company:v('fComp'), start:$('fStart').value, end:$('fEnd').value, type:$('fType').value, location:v('fLocation'), reps:[...formReps],
-    contact:{name:v('fCName'), email:v('fCEmail'), phone:v('fCPhone')}, url:v('fUrl'), files:[...formFiles] };
+    contact:{name:v('fCName'), email:v('fCEmail'), phone:v('fCPhone')}, url:v('fUrl'), files:[...formFiles],
+    products:formProds.map(p=>({name:p.name.trim().slice(0,80), qty:Math.min(9999,parseInt(p.qty,10)||0)||''})).filter(p=>p.name) };
   let msg='';
   if(rec.url && !safeUrl(rec.url)) msg='Event URL must start with http:// or https://.';
   else if(rec.url) rec.url=safeUrl(rec.url);
@@ -548,7 +628,7 @@ $('form').addEventListener('submit',async ev=>{
 function closeAll(){ ['formOv','detOv','impOv','admOv'].forEach(i=>$(i).classList.remove('open')); notifyHeight(); }
 $('cancel').onclick=closeAll;
 ['formOv','detOv','impOv','admOv'].forEach(id=>$(id).addEventListener('mousedown',e=>{ if(e.target.id===id) closeAll(); }));
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); if((e.key==='Enter')&&e.target.matches('[data-id][tabindex]')) openDetail(e.target.dataset.id); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeAll(); closePops(); } if((e.key==='Enter')&&e.target.matches('[data-id][tabindex]')) openDetail(e.target.dataset.id); });
 $('det').addEventListener('click',async e=>{
   const dl=e.target.closest('[data-dl]');
   if(dl){ const ev=events.find(x=>x.id===dl.dataset.id); const f=ev&&ev.files[+dl.dataset.dl]; if(f) downloadFile(f); return; }
@@ -597,6 +677,13 @@ function inferYear(md,row,today){
   let y=lim.getFullYear(); if(new Date(y,md.m-1,md.d)>lim) y--;
   return {year:y,sure:false};
 }
+function parseProducts(t){
+  return String(t||'').split(/[,;\n]/).map(x=>x.trim().replace(/[.\s]+$/,'')).filter(x=>x&&x!=='?').slice(0,30).map(x=>{
+    let m=/^(\d{1,4})\s*(?:x|×)?\s+(.+)$/i.exec(x); if(m) return {name:m[2].slice(0,80),qty:+m[1]};
+    m=/^(.+?)\s*(?:qty:?|x)\s*(\d{1,4})$/i.exec(x); if(m) return {name:m[1].trim().slice(0,80),qty:+m[2]};
+    return {name:x.slice(0,80),qty:''};
+  });
+}
 function parseContact(t){
   t=(t||'').replace(/mailto:/gi,' ');
   const emails=[...new Set((t.match(/[^\s@<>"',;()]+@[^\s@<>"',;()]+\.[A-Za-z]{2,}/g)||[]).map(x=>x.replace(/[.,;:]+$/,'')))];
@@ -618,7 +705,7 @@ function buildImportRows(csv, today){
       location:(r['Location']||'').replace(/\s*\n\s*/g,', ').trim().slice(0,160),
       reps:[...new Set((r['Rep(s) Attending']||'').split(/[,;\n]/).map(x=>x.trim().slice(0,80)).filter(Boolean))],
       contact:parseContact(r['Event/Shipping Contact']||r['📅 Event Contact']||''),
-      url:safeUrl((r['Event Link']||'').trim()).slice(0,500), files:[],
+      url:safeUrl((r['Event Link']||'').trim()).slice(0,500), files:[], products:parseProducts(r['Products Needed']),
       sm:rg.a.m, sd:rg.a.d, em:rg.b.m, ed:rg.b.d, year:yr.year, sure:yr.sure, include:true, pos:rows.length });
   }
   // Years Notion dropped: borrow from the nearest row (in export order) whose year is known,
@@ -692,7 +779,7 @@ $('impGo').onclick=async()=>{
   imp.rows.forEach((r,i)=>{
     if(!r.include) return; const d=importDates(r); if(!d) return;
     const key=`${r.name.toLowerCase()}|${d.start}|${d.end}`; if(seen.has(key)){ dups++; return; } seen.add(key);
-    recs.push({ id:uid()+i, name:r.name, company:r.company, start:d.start, end:d.end, type:r.type, location:r.location, reps:r.reps, contact:r.contact, url:r.url, files:[] });
+    recs.push({ id:uid()+i, name:r.name, company:r.company, start:d.start, end:d.end, type:r.type, location:r.location, reps:r.reps, contact:r.contact, url:r.url, files:[], products:r.products||[] });
   });
   if(!recs.length){ $('impErr').textContent = dups ? 'All selected events already exist.' : 'Nothing selected to import.'; return; }
   $('impGo').disabled=true; $('impGo').textContent='Importing…'; $('impErr').textContent='';
@@ -715,17 +802,22 @@ $('admForm').onsubmit=async e=>{
 };
 $('admCancel').onclick=closeAll;
 $('q').addEventListener('input',e=>{ st.q=e.target.value; render(); });
-$('fWhen').onchange=e=>{ st.when=e.target.value; render(); };
+$('whenSeg').addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; st.when=b.dataset.w; render(); });
+function closePops(except){ [['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ if(m!==except){ $(m).hidden=true; $(b).setAttribute('aria-expanded','false'); } }); }
+[['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ $(b).onclick=()=>{ closePops(m); $(m).hidden=!$(m).hidden; $(b).setAttribute('aria-expanded',String(!$(m).hidden)); }; });
+document.addEventListener('click',e=>{ if(!e.target.closest('.pop')) closePops(); });
+$('typeMenu').addEventListener('change',e=>{ const t=e.target.dataset.t; if(t===undefined) return; e.target.checked?st.types.add(t):st.types.delete(t); render(); });
+$('activeChips').addEventListener('click',e=>{ const b=e.target.closest('[data-ck]'); if(!b) return; const k=b.dataset.ck, v=b.dataset.cv; if(k==='type') st.types.delete(v); else st[k]=''; renderFilterControls(); render(); });
 $('fRep').onchange=e=>{ st.rep=e.target.value; render(); };
 $('fCompany').onchange=e=>{ st.company=e.target.value; render(); };
 $('fLoc').onchange=e=>{ st.loc=e.target.value; render(); };
 $('fMonth').onchange=e=>{ st.month=e.target.value; if(st.month){ st.calY=+st.month.slice(0,4); st.calM=+st.month.slice(5)-1; } render(); };
-$('pills').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const t=b.dataset.t; st.types.has(t)?st.types.delete(t):st.types.add(t); b.classList.toggle('on'); render(); });
 $('clear').onclick=()=>{ Object.assign(st,{q:'',when:'upcoming',rep:'',company:'',loc:'',month:''}); st.types.clear(); $('q').value=''; renderFilterControls(); render(); };
 $('views').addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if(!b) return; st.view=b.dataset.v; [...$('views').children].forEach(x=>x.classList.toggle('on',x===b)); render(); });
 $('out').addEventListener('click',e=>{
   const nav=e.target.closest('[data-nav]');
   if(nav){ const n=+nav.dataset.nav; if(n===0){ const d=new Date(); st.calY=d.getFullYear(); st.calM=d.getMonth(); } else { const d=new Date(st.calY,st.calM+n,1); st.calY=d.getFullYear(); st.calM=d.getMonth(); } render(); return; }
+  if(e.target.closest('a')) return;
   const el=e.target.closest('[data-id]'); if(el) openDetail(el.dataset.id);
 });
 
