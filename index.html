@@ -210,6 +210,16 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
   #formOv .modal{max-width:none;max-height:92vh;border-radius:18px 18px 0 0;padding:16px 18px 0;animation:slideup .22s ease-out}
   #form .actions{margin:18px -18px 0;padding:12px 18px 16px}
   #detOv .modal.detail{max-width:none;min-height:0;max-height:88vh;border-radius:18px 18px 0 0;padding:14px 18px 24px;animation:slideup .22s ease-out}
+  /* Embedded (Foleon): the iframe is auto-sized to the whole page, so position:fixed
+     sheets land at the bottom of a very tall frame. Use in-flow positioning instead. */
+  .emb body{position:relative}
+  .emb .bar{position:relative}
+  .emb .pop{position:static}
+  .emb .popmenu{position:absolute;left:0;right:0;top:100%;bottom:auto;max-height:none;overflow:visible;box-shadow:0 12px 32px rgba(14,42,58,.18)}
+  .emb body.sheet-open::before{display:none}
+  .emb .overlay{position:absolute;inset:0 0 auto 0;min-height:100%;height:auto;align-items:flex-start;justify-content:center;padding:12px}
+  .emb #detOv,.emb #formOv{align-items:flex-start;justify-content:center}
+  .emb #detOv .modal.detail,.emb #formOv .modal{max-height:none;min-height:0;border-radius:16px;animation:none}
 }
 </style>
 </head>
@@ -334,6 +344,9 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
    - Local demo mode (browser storage) otherwise */
 const FB_CFG = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) ? window.FIREBASE_CONFIG : null;
 const EMBEDDED = window.parent !== window;   // inside Foleon/iframe => read-only
+if(EMBEDDED) document.documentElement.classList.add('emb');
+// In an auto-sized iframe the visible area is unknown, so bring the opened panel into view.
+const embedReveal = el => { if(!EMBEDDED||!el) return; setTimeout(()=>{ try{ el.scrollIntoView({block:'start',behavior:'auto'}); }catch(_){} },30); };
 let events = [], loaded = false;
 const Local = {
   KEY: 'acteon-events-v1',
@@ -668,7 +681,7 @@ function openDetail(id,quiet){
       <button class="btn ghost" data-act="edit" data-id="${esc(id)}">Edit</button>`:''}
       <button class="btn" data-act="close">Close</button>
     </div>`;
-  $('detOv').classList.toggle('noanim',!!quiet); $('detOv').classList.add('open'); notifyHeight();
+  $('detOv').classList.toggle('noanim',!!quiet); $('detOv').classList.add('open'); notifyHeight(); embedReveal($('detOv'));
 }
 
 /* ============ Form ============ */
@@ -924,7 +937,7 @@ $('whenSeg').addEventListener('click',e=>{ const b=e.target.closest('[data-w]');
 $('attnBtn').onclick=()=>{ st.attn=!st.attn; render(); };
 const syncSheet = () => document.body.classList.toggle('sheet-open', !$('typeMenu').hidden || !$('moreMenu').hidden);
 function closePops(except){ [['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ if(m!==except){ $(m).hidden=true; $(b).setAttribute('aria-expanded','false'); } }); syncSheet(); }
-[['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ $(b).onclick=()=>{ closePops(m); $(m).hidden=!$(m).hidden; $(b).setAttribute('aria-expanded',String(!$(m).hidden)); syncSheet(); }; });
+[['typeBtn','typeMenu'],['moreBtn','moreMenu']].forEach(([b,m])=>{ $(b).onclick=()=>{ closePops(m); $(m).hidden=!$(m).hidden; $(b).setAttribute('aria-expanded',String(!$(m).hidden)); syncSheet(); if(!$(m).hidden) embedReveal($(b)); }; });
 document.addEventListener('click',e=>{ if(!e.target.closest('.pop')) closePops(); });
 $('typeMenu').addEventListener('change',e=>{ const t=e.target.dataset.t; if(t===undefined) return; e.target.checked?st.types.add(t):st.types.delete(t); render(); });
 $('activeChips').addEventListener('click',e=>{ const b=e.target.closest('[data-ck]'); if(!b) return; const k=b.dataset.ck, v=b.dataset.cv; if(k==='type') st.types.delete(v); else if(k==='attn') st.attn=false; else st[k]=''; renderFilterControls(); render(); });
